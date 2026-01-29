@@ -3,8 +3,14 @@ import { GoogleGenAI } from "@google/genai";
 import { PROPERTY_DATA, MANUAL_SECTIONS } from "../constants";
 
 export const askAssistant = async (question: string) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
-  
+  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || "";
+
+  if (!apiKey) {
+    return "I'm sorry, the AI Host is not configured yet. Please contact support for assistance.";
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
   const manualContext = MANUAL_SECTIONS.map(s => `${s.title}: ${s.content.join(' ')}`).join('\n');
   const propertyContext = `
     Property: ${PROPERTY_DATA.name}

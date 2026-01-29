@@ -65,8 +65,8 @@ const AssistantView: React.FC = () => {
                 {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
               </div>
               <div className={`p-4 rounded-2xl text-sm leading-relaxed ${msg.role === 'user'
-                  ? 'bg-earth text-white font-medium shadow-md'
-                  : 'glass text-luxury-black dark:text-luxury-off/90 shadow-sm'
+                ? 'bg-earth text-white font-medium shadow-md'
+                : 'glass text-luxury-black dark:text-luxury-off/90 shadow-sm'
                 }`}>
                 {msg.content}
               </div>
@@ -96,7 +96,7 @@ const AssistantView: React.FC = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Type your question..."
-            className="flex-1 bg-transparent px-4 py-2 outline-none text-sm placeholder:text-luxury-black/30 dark:placeholder:text-luxury-off/30 text-luxury-black dark:text-luxury-light"
+            className="flex-1 bg-transparent px-4 py-2 outline-none text-base placeholder:text-luxury-black/30 dark:placeholder:text-luxury-off/30 text-luxury-black dark:text-luxury-light"
           />
           <button
             onClick={handleSend}

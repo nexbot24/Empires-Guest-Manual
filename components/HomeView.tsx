@@ -11,6 +11,14 @@ const HomeView: React.FC = () => {
   const [connectStep, setConnectStep] = useState<'selection' | 'qr' | 'manual'>('selection');
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const scrollGallery = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const { clientWidth } = scrollRef.current;
+      const scrollAmount = direction === 'left' ? -clientWidth : clientWidth;
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
   const handleScroll = () => {
     if (scrollRef.current) {
       const { scrollLeft, clientWidth } = scrollRef.current;
@@ -87,6 +95,23 @@ const HomeView: React.FC = () => {
               {activeImageIndex + 1} / {GALLERY_IMAGES.length}
             </span>
           </div>
+
+          {/* Navigation Arrows */}
+          <button
+            onClick={(e) => { e.stopPropagation(); scrollGallery('left'); }}
+            className={`absolute left-2 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 backdrop-blur-md p-2 rounded-full text-white transition-all ${activeImageIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+            aria-label="Previous image"
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          <button
+            onClick={(e) => { e.stopPropagation(); scrollGallery('right'); }}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 backdrop-blur-md p-2 rounded-full text-white transition-all ${activeImageIndex === GALLERY_IMAGES.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+            aria-label="Next image"
+          >
+            <ChevronRight size={20} />
+          </button>
         </div>
       </section>
 
@@ -172,10 +197,10 @@ const HomeView: React.FC = () => {
             Connect Now
           </button>
         </div>
-      </section>
+      </section >
 
       {/* Support Card */}
-      <section className="bg-earth p-6 rounded-3xl text-white shadow-lg">
+      < section className="bg-earth p-6 rounded-3xl text-white shadow-lg" >
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-serif text-xl font-bold">24/7 Support</h2>
           <Phone size={20} />
@@ -189,175 +214,179 @@ const HomeView: React.FC = () => {
         >
           Call Concierge
         </a>
-      </section>
+      </section >
 
       {/* WiFi Connection Modal */}
-      {showWifiModal && (
-        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
-          <div className="glass w-full max-w-sm rounded-[40px] p-8 relative border-earth/30 flex flex-col shadow-2xl overflow-hidden min-h-[480px]">
-            <button
-              onClick={() => setShowWifiModal(false)}
-              className="absolute top-6 right-6 text-luxury-black/40 dark:text-luxury-off/40 hover:text-earth p-2 z-10"
-            >
-              <X size={24} />
-            </button>
+      {
+        showWifiModal && (
+          <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
+            <div className="glass w-full max-w-sm rounded-[40px] p-8 relative border-earth/30 flex flex-col shadow-2xl overflow-hidden min-h-[480px]">
+              <button
+                onClick={() => setShowWifiModal(false)}
+                className="absolute top-6 right-6 text-luxury-black/40 dark:text-luxury-off/40 hover:text-earth p-2 z-10"
+              >
+                <X size={24} />
+              </button>
 
-            {connectStep === 'selection' && (
-              <div className="flex-1 flex flex-col items-center justify-center text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="w-16 h-16 bg-earth/10 rounded-full flex items-center justify-center text-earth mb-6">
-                  <Wifi size={32} />
+              {connectStep === 'selection' && (
+                <div className="flex-1 flex flex-col items-center justify-center text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="w-16 h-16 bg-earth/10 rounded-full flex items-center justify-center text-earth mb-6">
+                    <Wifi size={32} />
+                  </div>
+                  <h2 className="font-serif text-2xl mb-2">Connect to WiFi</h2>
+                  <p className="text-sm text-luxury-black/60 dark:text-luxury-off/60 mb-8">How would you like to connect?</p>
+
+                  <div className="space-y-4 w-full">
+                    <button
+                      onClick={() => setConnectStep('qr')}
+                      className="w-full flex items-center gap-4 p-5 glass rounded-2xl border border-earth/20 hover:border-earth transition-colors text-left"
+                    >
+                      <div className="bg-earth/10 p-3 rounded-xl text-earth"><QrCode size={20} /></div>
+                      <div>
+                        <p className="font-bold text-sm">Scan QR Code</p>
+                        <p className="text-[10px] uppercase tracking-wider opacity-60">For another device</p>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={handleSmartConnect}
+                      className="w-full flex items-center gap-4 p-5 glass rounded-2xl border border-earth/20 hover:border-earth transition-colors text-left"
+                    >
+                      <div className="bg-earth/10 p-3 rounded-xl text-earth"><Smartphone size={20} /></div>
+                      <div>
+                        <p className="font-bold text-sm">Smart Connect</p>
+                        <p className="text-[10px] uppercase tracking-wider opacity-60">For this device</p>
+                      </div>
+                    </button>
+                  </div>
                 </div>
-                <h2 className="font-serif text-2xl mb-2">Connect to WiFi</h2>
-                <p className="text-sm text-luxury-black/60 dark:text-luxury-off/60 mb-8">How would you like to connect?</p>
+              )}
 
-                <div className="space-y-4 w-full">
+              {connectStep === 'qr' && (
+                <div className="flex-1 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500">
+                  <h2 className="font-serif text-2xl mb-1">Scan to Join</h2>
+                  <p className="text-[10px] text-earth uppercase tracking-widest font-bold mb-8">Fast connection for guests</p>
+
+                  <div className="relative p-4 bg-white rounded-3xl shadow-inner mb-8">
+                    <img src={wifiQrUrl} alt="WiFi QR" className="w-44 h-44 object-contain" />
+                    <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-earth rounded-tl-xl"></div>
+                    <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-earth rounded-br-xl"></div>
+                  </div>
+
                   <button
-                    onClick={() => setConnectStep('qr')}
-                    className="w-full flex items-center gap-4 p-5 glass rounded-2xl border border-earth/20 hover:border-earth transition-colors text-left"
+                    onClick={() => setConnectStep('selection')}
+                    className="text-[10px] uppercase tracking-widest text-earth font-bold hover:underline"
                   >
-                    <div className="bg-earth/10 p-3 rounded-xl text-earth"><QrCode size={20} /></div>
-                    <div>
-                      <p className="font-bold text-sm">Scan QR Code</p>
-                      <p className="text-[10px] uppercase tracking-wider opacity-60">For another device</p>
-                    </div>
+                    Back to options
                   </button>
+                </div>
+              )}
+
+              {connectStep === 'manual' && (
+                <div className="flex-1 flex flex-col items-center justify-center text-center animate-in fade-in slide-in-from-right-4 duration-500">
+                  <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center text-green-500 mb-6">
+                    <CheckCircle2 size={32} />
+                  </div>
+                  <h2 className="font-serif text-2xl mb-2">Password Copied!</h2>
+                  <p className="text-sm text-luxury-black/60 dark:text-luxury-off/60 mb-8 px-4">
+                    The password is on your clipboard. Just select the network in your settings and paste.
+                  </p>
+
+                  <div className="bg-luxury-black/5 dark:bg-white/5 p-4 rounded-2xl text-left border border-earth/10 w-full mb-8">
+                    <p className="text-[10px] uppercase tracking-widest text-earth font-bold mb-1">Select Network</p>
+                    <p className="text-sm font-semibold truncate">{PROPERTY_DATA.wifiName}</p>
+                  </div>
+
+                  <a
+                    href="App-Prefs:root=WIFI"
+                    className="w-full bg-earth text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-lg shadow-earth/20 mb-4"
+                  >
+                    <Settings size={18} />
+                    Open WiFi Settings
+                  </a>
 
                   <button
-                    onClick={handleSmartConnect}
-                    className="w-full flex items-center gap-4 p-5 glass rounded-2xl border border-earth/20 hover:border-earth transition-colors text-left"
+                    onClick={() => setConnectStep('selection')}
+                    className="text-[10px] uppercase tracking-widest text-luxury-black/40 dark:text-luxury-off/40 font-bold hover:underline"
                   >
-                    <div className="bg-earth/10 p-3 rounded-xl text-earth"><Smartphone size={20} /></div>
-                    <div>
-                      <p className="font-bold text-sm">Smart Connect</p>
-                      <p className="text-[10px] uppercase tracking-wider opacity-60">For this device</p>
-                    </div>
+                    Choose another way
                   </button>
                 </div>
-              </div>
-            )}
-
-            {connectStep === 'qr' && (
-              <div className="flex-1 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500">
-                <h2 className="font-serif text-2xl mb-1">Scan to Join</h2>
-                <p className="text-[10px] text-earth uppercase tracking-widest font-bold mb-8">Fast connection for guests</p>
-
-                <div className="relative p-4 bg-white rounded-3xl shadow-inner mb-8">
-                  <img src={wifiQrUrl} alt="WiFi QR" className="w-44 h-44 object-contain" />
-                  <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-earth rounded-tl-xl"></div>
-                  <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-earth rounded-br-xl"></div>
-                </div>
-
-                <button
-                  onClick={() => setConnectStep('selection')}
-                  className="text-[10px] uppercase tracking-widest text-earth font-bold hover:underline"
-                >
-                  Back to options
-                </button>
-              </div>
-            )}
-
-            {connectStep === 'manual' && (
-              <div className="flex-1 flex flex-col items-center justify-center text-center animate-in fade-in slide-in-from-right-4 duration-500">
-                <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center text-green-500 mb-6">
-                  <CheckCircle2 size={32} />
-                </div>
-                <h2 className="font-serif text-2xl mb-2">Password Copied!</h2>
-                <p className="text-sm text-luxury-black/60 dark:text-luxury-off/60 mb-8 px-4">
-                  The password is on your clipboard. Just select the network in your settings and paste.
-                </p>
-
-                <div className="bg-luxury-black/5 dark:bg-white/5 p-4 rounded-2xl text-left border border-earth/10 w-full mb-8">
-                  <p className="text-[10px] uppercase tracking-widest text-earth font-bold mb-1">Select Network</p>
-                  <p className="text-sm font-semibold truncate">{PROPERTY_DATA.wifiName}</p>
-                </div>
-
-                <a
-                  href="App-Prefs:root=WIFI"
-                  className="w-full bg-earth text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-lg shadow-earth/20 mb-4"
-                >
-                  <Settings size={18} />
-                  Open WiFi Settings
-                </a>
-
-                <button
-                  onClick={() => setConnectStep('selection')}
-                  className="text-[10px] uppercase tracking-widest text-luxury-black/40 dark:text-luxury-off/40 font-bold hover:underline"
-                >
-                  Choose another way
-                </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Image Lightbox */}
-      {lightboxIndex !== null && (
-        <div
-          className="fixed inset-0 z-[100] bg-black/98 backdrop-blur-xl animate-in fade-in duration-300 flex items-center justify-center p-4 touch-none"
-          onClick={() => setLightboxIndex(null)}
-        >
-          {/* Close Button */}
-          <button
-            className="absolute top-6 right-6 text-white/60 hover:text-white p-2 z-50 transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              setLightboxIndex(null);
-            }}
-          >
-            <X size={28} />
-          </button>
-
-          {/* Navigation - Left */}
-          {lightboxIndex > 0 && (
-            <button
-              className="absolute left-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all backdrop-blur-md hidden md:flex z-50"
-              onClick={(e) => {
-                e.stopPropagation();
-                setLightboxIndex(lightboxIndex - 1);
-              }}
-            >
-              <ChevronLeft size={24} />
-            </button>
-          )}
-
-          {/* Navigation - Right */}
-          {lightboxIndex < GALLERY_IMAGES.length - 1 && (
-            <button
-              className="absolute right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all backdrop-blur-md hidden md:flex z-50"
-              onClick={(e) => {
-                e.stopPropagation();
-                setLightboxIndex(lightboxIndex + 1);
-              }}
-            >
-              <ChevronRight size={24} />
-            </button>
-          )}
-
-          {/* Main Image */}
+      {
+        lightboxIndex !== null && (
           <div
-            className="relative w-full max-w-4xl max-h-[85vh] flex items-center justify-center"
-            onClick={(e) => e.stopPropagation()} // Prevent close when clicking image area
+            className="fixed inset-0 z-[100] bg-black/98 backdrop-blur-xl animate-in fade-in duration-300 flex items-center justify-center p-4 touch-none"
+            onClick={() => setLightboxIndex(null)}
           >
-            <img
-              src={GALLERY_IMAGES[lightboxIndex]}
-              alt={`Gallery view ${lightboxIndex + 1}`}
-              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
-            />
+            {/* Close Button */}
+            <button
+              className="absolute top-6 right-6 text-white/60 hover:text-white p-2 z-50 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex(null);
+              }}
+            >
+              <X size={28} />
+            </button>
 
-            {/* Mobile tap areas for navigation */}
-            <div className="absolute inset-y-0 left-0 w-1/4 z-10 md:hidden" onClick={() => lightboxIndex > 0 && setLightboxIndex(lightboxIndex - 1)} />
-            <div className="absolute inset-y-0 right-0 w-1/4 z-10 md:hidden" onClick={() => lightboxIndex < GALLERY_IMAGES.length - 1 && setLightboxIndex(lightboxIndex + 1)} />
-          </div>
+            {/* Navigation - Left */}
+            {lightboxIndex > 0 && (
+              <button
+                className="absolute left-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all backdrop-blur-md hidden md:flex z-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex(lightboxIndex - 1);
+                }}
+              >
+                <ChevronLeft size={24} />
+              </button>
+            )}
 
-          {/* Counter */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/5">
-            <p className="text-white text-xs font-bold tracking-widest uppercase">
-              {lightboxIndex + 1} / {GALLERY_IMAGES.length}
-            </p>
+            {/* Navigation - Right */}
+            {lightboxIndex < GALLERY_IMAGES.length - 1 && (
+              <button
+                className="absolute right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all backdrop-blur-md hidden md:flex z-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex(lightboxIndex + 1);
+                }}
+              >
+                <ChevronRight size={24} />
+              </button>
+            )}
+
+            {/* Main Image */}
+            <div
+              className="relative w-full max-w-4xl max-h-[85vh] flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()} // Prevent close when clicking image area
+            >
+              <img
+                src={GALLERY_IMAGES[lightboxIndex]}
+                alt={`Gallery view ${lightboxIndex + 1}`}
+                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
+              />
+
+              {/* Mobile tap areas for navigation */}
+              <div className="absolute inset-y-0 left-0 w-1/4 z-10 md:hidden" onClick={() => lightboxIndex > 0 && setLightboxIndex(lightboxIndex - 1)} />
+              <div className="absolute inset-y-0 right-0 w-1/4 z-10 md:hidden" onClick={() => lightboxIndex < GALLERY_IMAGES.length - 1 && setLightboxIndex(lightboxIndex + 1)} />
+            </div>
+
+            {/* Counter */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/5">
+              <p className="text-white text-xs font-bold tracking-widest uppercase">
+                {lightboxIndex + 1} / {GALLERY_IMAGES.length}
+              </p>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
     </div >
   );

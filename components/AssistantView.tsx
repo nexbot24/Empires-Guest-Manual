@@ -88,7 +88,7 @@ const AssistantView: React.FC = () => {
       </div>
 
       {/* Input area */}
-      <div className="mt-4 safe-area-bottom pb-4 mb-24">
+      <div className="mt-4 safe-area-bottom pb-4 mb-12">
         <div className="glass rounded-2xl flex items-center p-2 border border-earth/20 shadow-lg">
           <input
             type="text"
@@ -96,7 +96,7 @@ const AssistantView: React.FC = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Type your question..."
-            className="flex-1 bg-transparent px-4 py-2 outline-none text-base placeholder:text-luxury-black/30 dark:placeholder:text-luxury-off/30 text-luxury-black dark:text-luxury-light"
+            className="flex-1 bg-transparent px-4 py-1.5 outline-none text-base placeholder:text-luxury-black/30 dark:placeholder:text-luxury-off/30 text-luxury-black dark:text-luxury-light"
           />
           <button
             onClick={handleSend}

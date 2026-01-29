@@ -2,6 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { Wifi, Clock, MapPin, Phone, Copy, X, Maximize2, Camera, QrCode, CheckCircle2, Settings, Smartphone, ChevronLeft, ChevronRight } from 'lucide-react';
 import { PROPERTY_DATA, GALLERY_IMAGES } from '../constants';
+import logo from '../assets/logo.png';
 
 const HomeView: React.FC = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -89,11 +90,13 @@ const HomeView: React.FC = () => {
             ))}
           </div>
 
-          <div className="absolute top-4 left-4 bg-luxury-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-2">
-            <Camera size={12} className="text-earth" />
-            <span className="text-[10px] text-white font-bold tracking-widest uppercase">
-              {activeImageIndex + 1} / {GALLERY_IMAGES.length}
-            </span>
+          {/* Brand Logo */}
+          <div className="absolute top-6 left-6 z-10">
+            <img
+              src={logo}
+              alt="Empires Property"
+              className="h-12 w-auto drop-shadow-lg opacity-90"
+            />
           </div>
 
           {/* Navigation Arrows */}

@@ -2,11 +2,11 @@
 import { PropertyInfo, ManualSection, Recommendation } from './types';
 
 export const PROPERTY_DATA: PropertyInfo = {
-  name: 'The Marylebone Suite',
-  address: '15 Chiltern St, London W1U 7PG, United Kingdom',
-  wifiName: 'Empires_Luxury_5G',
-  wifiPass: 'london-stay-2024',
-  checkIn: '3:00 PM',
+  name: 'Haven',
+  address: '330 Upper Street, London N1 2XQ, United Kingdom',
+  wifiName: 'HavenFi',
+  wifiPass: 'w3LOV3H@V3N_!',
+  checkIn: '4:00 PM',
   checkOut: '11:00 AM',
   emergencyContact: '+44 20 7946 0000'
 };

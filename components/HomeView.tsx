@@ -40,20 +40,20 @@ const HomeView: React.FC = () => {
       {/* Property Gallery Section */}
       <section className="relative">
         <div className="relative h-72 rounded-3xl overflow-hidden shadow-xl group">
-          <div 
+          <div
             ref={scrollRef}
             onScroll={handleScroll}
             className="flex h-full overflow-x-auto snap-x snap-mandatory no-scrollbar cursor-grab active:cursor-grabbing"
           >
             {GALLERY_IMAGES.map((img, i) => (
-              <div 
-                key={i} 
+              <div
+                key={i}
                 className="min-w-full h-full snap-center relative"
                 onClick={() => setLightboxImage(img)}
               >
-                <img 
-                  src={img} 
-                  alt={`Property View ${i + 1}`} 
+                <img
+                  src={img}
+                  alt={`Property View ${i + 1}`}
                   className="w-full h-full object-cover brightness-90 transition-transform duration-700 hover:scale-105"
                 />
                 <div className="absolute top-4 right-4 bg-black/30 backdrop-blur-md p-2 rounded-full text-white pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
@@ -73,15 +73,14 @@ const HomeView: React.FC = () => {
 
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
             {GALLERY_IMAGES.map((_, i) => (
-              <div 
-                key={i} 
-                className={`h-1 rounded-full transition-all duration-300 ${
-                  activeImageIndex === i ? 'w-6 bg-earth' : 'w-2 bg-white/40'
-                }`}
+              <div
+                key={i}
+                className={`h-1 rounded-full transition-all duration-300 ${activeImageIndex === i ? 'w-6 bg-earth' : 'w-2 bg-white/40'
+                  }`}
               />
             ))}
           </div>
-          
+
           <div className="absolute top-4 left-4 bg-luxury-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-2">
             <Camera size={12} className="text-earth" />
             <span className="text-[10px] text-white font-bold tracking-widest uppercase">
@@ -113,6 +112,29 @@ const HomeView: React.FC = () => {
         </div>
       </div>
 
+      {/* Early Check-in/out Request */}
+      <a
+        href={`https://wa.me/${PROPERTY_DATA.emergencyContact.replace(/\s/g, '')}?text=${encodeURIComponent('Hi! I would like to request early check-in or late check-out for my upcoming stay at Haven.')}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="glass p-4 rounded-2xl flex items-center justify-between shadow-sm border border-earth/10 hover:border-earth/30 transition-all active:scale-[0.98]"
+      >
+        <div className="flex items-center gap-3">
+          <div className="bg-earth/10 p-2 rounded-lg">
+            <Clock size={18} className="text-earth" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold">Request Early Check-in/Late Check-out</p>
+            <p className="text-[10px] uppercase tracking-wider text-luxury-black/50 dark:text-luxury-off/50">Subject to availability</p>
+          </div>
+        </div>
+        <div className="text-earth">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </div>
+      </a>
+
       {/* Wifi Card */}
       <section className="glass p-6 rounded-3xl relative overflow-hidden shadow-sm border border-earth/5 dark:border-earth/10">
         <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -138,8 +160,8 @@ const HomeView: React.FC = () => {
               {copied ? <CheckCircle2 size={18} className="text-green-500" /> : <Copy size={18} />}
             </button>
           </div>
-          
-          <button 
+
+          <button
             onClick={() => {
               setConnectStep('selection');
               setShowWifiModal(true);
@@ -161,8 +183,8 @@ const HomeView: React.FC = () => {
         <p className="text-sm mb-4 font-medium opacity-90">
           Need immediate assistance? Our dedicated concierge team is available around the clock.
         </p>
-        <a 
-          href={`tel:${PROPERTY_DATA.emergencyContact}`} 
+        <a
+          href={`tel:${PROPERTY_DATA.emergencyContact}`}
           className="flex items-center justify-center gap-2 bg-luxury-black text-white py-3 rounded-xl font-semibold uppercase tracking-widest text-xs transition-transform active:scale-95"
         >
           Call Concierge
@@ -173,7 +195,7 @@ const HomeView: React.FC = () => {
       {showWifiModal && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
           <div className="glass w-full max-w-sm rounded-[40px] p-8 relative border-earth/30 flex flex-col shadow-2xl overflow-hidden min-h-[480px]">
-            <button 
+            <button
               onClick={() => setShowWifiModal(false)}
               className="absolute top-6 right-6 text-luxury-black/40 dark:text-luxury-off/40 hover:text-earth p-2 z-10"
             >
@@ -187,9 +209,9 @@ const HomeView: React.FC = () => {
                 </div>
                 <h2 className="font-serif text-2xl mb-2">Connect to WiFi</h2>
                 <p className="text-sm text-luxury-black/60 dark:text-luxury-off/60 mb-8">How would you like to connect?</p>
-                
+
                 <div className="space-y-4 w-full">
-                  <button 
+                  <button
                     onClick={() => setConnectStep('qr')}
                     className="w-full flex items-center gap-4 p-5 glass rounded-2xl border border-earth/20 hover:border-earth transition-colors text-left"
                   >
@@ -199,8 +221,8 @@ const HomeView: React.FC = () => {
                       <p className="text-[10px] uppercase tracking-wider opacity-60">For another device</p>
                     </div>
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={handleSmartConnect}
                     className="w-full flex items-center gap-4 p-5 glass rounded-2xl border border-earth/20 hover:border-earth transition-colors text-left"
                   >
@@ -218,14 +240,14 @@ const HomeView: React.FC = () => {
               <div className="flex-1 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500">
                 <h2 className="font-serif text-2xl mb-1">Scan to Join</h2>
                 <p className="text-[10px] text-earth uppercase tracking-widest font-bold mb-8">Fast connection for guests</p>
-                
+
                 <div className="relative p-4 bg-white rounded-3xl shadow-inner mb-8">
                   <img src={wifiQrUrl} alt="WiFi QR" className="w-44 h-44 object-contain" />
                   <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-earth rounded-tl-xl"></div>
                   <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-earth rounded-br-xl"></div>
                 </div>
-                
-                <button 
+
+                <button
                   onClick={() => setConnectStep('selection')}
                   className="text-[10px] uppercase tracking-widest text-earth font-bold hover:underline"
                 >
@@ -243,21 +265,21 @@ const HomeView: React.FC = () => {
                 <p className="text-sm text-luxury-black/60 dark:text-luxury-off/60 mb-8 px-4">
                   The password is on your clipboard. Just select the network in your settings and paste.
                 </p>
-                
+
                 <div className="bg-luxury-black/5 dark:bg-white/5 p-4 rounded-2xl text-left border border-earth/10 w-full mb-8">
                   <p className="text-[10px] uppercase tracking-widest text-earth font-bold mb-1">Select Network</p>
                   <p className="text-sm font-semibold truncate">{PROPERTY_DATA.wifiName}</p>
                 </div>
 
-                <a 
-                  href="App-Prefs:root=WIFI" 
+                <a
+                  href="App-Prefs:root=WIFI"
                   className="w-full bg-earth text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-lg shadow-earth/20 mb-4"
                 >
                   <Settings size={18} />
                   Open WiFi Settings
                 </a>
-                
-                <button 
+
+                <button
                   onClick={() => setConnectStep('selection')}
                   className="text-[10px] uppercase tracking-widest text-luxury-black/40 dark:text-luxury-off/40 font-bold hover:underline"
                 >
@@ -271,16 +293,16 @@ const HomeView: React.FC = () => {
 
       {/* Image Lightbox */}
       {lightboxImage && (
-        <div 
+        <div
           className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl animate-in fade-in duration-300 flex flex-col items-center justify-center p-4"
           onClick={() => setLightboxImage(null)}
         >
           <button className="absolute top-8 right-8 text-white/60 hover:text-white p-2">
             <X size={32} />
           </button>
-          <img 
-            src={lightboxImage} 
-            alt="Property View Full" 
+          <img
+            src={lightboxImage}
+            alt="Property View Full"
             className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl"
           />
           <p className="mt-6 font-serif text-xl text-white">{PROPERTY_DATA.name}</p>

@@ -1,11 +1,11 @@
 
 import React, { useState, useRef } from 'react';
-import { Wifi, Clock, MapPin, Phone, Copy, X, Maximize2, Camera, QrCode, CheckCircle2, Settings, Smartphone } from 'lucide-react';
+import { Wifi, Clock, MapPin, Phone, Copy, X, Maximize2, Camera, QrCode, CheckCircle2, Settings, Smartphone, ChevronLeft, ChevronRight } from 'lucide-react';
 import { PROPERTY_DATA, GALLERY_IMAGES } from '../constants';
 
 const HomeView: React.FC = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [showWifiModal, setShowWifiModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [connectStep, setConnectStep] = useState<'selection' | 'qr' | 'manual'>('selection');
@@ -49,7 +49,7 @@ const HomeView: React.FC = () => {
               <div
                 key={i}
                 className="min-w-full h-full snap-center relative"
-                onClick={() => setLightboxImage(img)}
+                onClick={() => setLightboxIndex(i)}
               >
                 <img
                   src={img}
@@ -292,23 +292,74 @@ const HomeView: React.FC = () => {
       )}
 
       {/* Image Lightbox */}
-      {lightboxImage && (
+      {lightboxIndex !== null && (
         <div
-          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl animate-in fade-in duration-300 flex flex-col items-center justify-center p-4"
-          onClick={() => setLightboxImage(null)}
+          className="fixed inset-0 z-[100] bg-black/98 backdrop-blur-xl animate-in fade-in duration-300 flex items-center justify-center p-4 touch-none"
+          onClick={() => setLightboxIndex(null)}
         >
-          <button className="absolute top-8 right-8 text-white/60 hover:text-white p-2">
-            <X size={32} />
+          {/* Close Button */}
+          <button
+            className="absolute top-6 right-6 text-white/60 hover:text-white p-2 z-50 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxIndex(null);
+            }}
+          >
+            <X size={28} />
           </button>
-          <img
-            src={lightboxImage}
-            alt="Property View Full"
-            className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl"
-          />
-          <p className="mt-6 font-serif text-xl text-white">{PROPERTY_DATA.name}</p>
+
+          {/* Navigation - Left */}
+          {lightboxIndex > 0 && (
+            <button
+              className="absolute left-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all backdrop-blur-md hidden md:flex z-50"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex(lightboxIndex - 1);
+              }}
+            >
+              <ChevronLeft size={24} />
+            </button>
+          )}
+
+          {/* Navigation - Right */}
+          {lightboxIndex < GALLERY_IMAGES.length - 1 && (
+            <button
+              className="absolute right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all backdrop-blur-md hidden md:flex z-50"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex(lightboxIndex + 1);
+              }}
+            >
+              <ChevronRight size={24} />
+            </button>
+          )}
+
+          {/* Main Image */}
+          <div
+            className="relative w-full max-w-4xl max-h-[85vh] flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()} // Prevent close when clicking image area
+          >
+            <img
+              src={GALLERY_IMAGES[lightboxIndex]}
+              alt={`Gallery view ${lightboxIndex + 1}`}
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
+            />
+
+            {/* Mobile tap areas for navigation */}
+            <div className="absolute inset-y-0 left-0 w-1/4 z-10 md:hidden" onClick={() => lightboxIndex > 0 && setLightboxIndex(lightboxIndex - 1)} />
+            <div className="absolute inset-y-0 right-0 w-1/4 z-10 md:hidden" onClick={() => lightboxIndex < GALLERY_IMAGES.length - 1 && setLightboxIndex(lightboxIndex + 1)} />
+          </div>
+
+          {/* Counter */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/5">
+            <p className="text-white text-xs font-bold tracking-widest uppercase">
+              {lightboxIndex + 1} / {GALLERY_IMAGES.length}
+            </p>
+          </div>
         </div>
       )}
-    </div>
+
+    </div >
   );
 };
 

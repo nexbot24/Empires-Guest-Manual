@@ -1,0 +1,7 @@
+{
+  "name": "Empires Property Guest Manual",
+  "description": "A luxury mobile-optimized guest manual app for Empires Property, featuring property information, house rules, local recommendations, and an AI-powered guest assistant.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

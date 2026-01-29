@@ -12,11 +12,11 @@ export const PROPERTY_DATA: PropertyInfo = {
 };
 
 export const GALLERY_IMAGES = [
-  "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?q=80&w=1200&auto=format&fit=crop"
+  "/haven-living-room-1.jpg",
+  "/haven-living-room-2.jpg",
+  "/haven-bedroom.jpg",
+  "/haven-kitchen.jpg",
+  "/haven-bathroom.jpg"
 ];
 
 export const MANUAL_SECTIONS: ManualSection[] = [

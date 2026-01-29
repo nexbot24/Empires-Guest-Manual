@@ -12,11 +12,11 @@ export const PROPERTY_DATA: PropertyInfo = {
 };
 
 export const GALLERY_IMAGES = [
-  "/haven-living-room-1.jpg",
-  "/haven-living-room-2.jpg",
-  "/haven-bedroom.jpg",
-  "/haven-kitchen.jpg",
-  "/haven-bathroom.jpg"
+  "haven-living-room-1.jpg",
+  "haven-living-room-2.jpg",
+  "haven-bedroom.jpg",
+  "haven-kitchen.jpg",
+  "haven-bathroom.jpg"
 ];
 
 export const MANUAL_SECTIONS: ManualSection[] = [

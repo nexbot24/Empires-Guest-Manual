@@ -25,7 +25,7 @@ export interface ManualSection {
 
 export interface Recommendation {
   id: string;
-  category: 'Dining' | 'Transport' | 'Culture' | 'Groceries';
+  category: 'Dining' | 'Transport' | 'Culture' | 'Groceries' | 'Activities';
   name: string;
   description: string;
   distance: string;

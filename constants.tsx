@@ -66,33 +66,105 @@ export const RECOMMENDATIONS: Recommendation[] = [
   {
     id: '1',
     category: 'Dining',
-    name: 'Chiltern Firehouse',
-    description: 'Iconic London dining in a converted fire station. Booking highly recommended.',
-    distance: '2 min walk',
-    link: 'https://www.chilternfirehouse.com'
+    name: 'Trullo',
+    description: 'Exceptional Italian restaurant known for some of London\'s best handmade pasta. Perfect for date night.',
+    distance: '12 min walk',
+    link: 'https://www.trullorestaurant.com'
   },
   {
     id: '2',
     category: 'Dining',
-    name: 'Monocle Café',
-    description: 'Minimalist spot for excellent coffee and pastries.',
-    distance: '1 min walk',
-    link: 'https://cafe.monocle.com'
+    name: 'Afghan Kitchen',
+    description: 'Long-standing local favorite overlooking Islington Green. Hearty stews, rice dishes, and authentic breads.',
+    distance: '8 min walk',
+    link: 'https://www.afghankitchen.com'
   },
   {
     id: '3',
-    category: 'Transport',
-    name: 'Baker Street Station',
-    description: 'Jubilee, Bakerloo, Metropolitan, Circle and Hammersmith & City lines.',
+    category: 'Dining',
+    name: 'The Breakfast Club Angel',
+    description: 'Popular all-day breakfast spot on Camden Passage. Great coffee and brunch classics.',
     distance: '5 min walk',
-    link: '#'
+    link: 'https://www.thebreakfastclubcafes.com'
   },
   {
     id: '4',
+    category: 'Dining',
+    name: 'Sambal Shiok',
+    description: 'Addictive Malaysian laksa bar on Holloway Road. Known for signature broth bowls with authentic heat.',
+    distance: '15 min walk',
+    link: 'https://www.sambalshiok.co.uk'
+  },
+  {
+    id: '5',
+    category: 'Transport',
+    name: 'Old Street Station',
+    description: 'Northern Line. Quick access to Bank, London Bridge, and King\'s Cross.',
+    distance: '5 min walk',
+    link: 'https://tfl.gov.uk/tube/stop/940GZZLUOST'
+  },
+  {
+    id: '6',
+    category: 'Transport',
+    name: 'Moorgate Station',
+    description: 'Northern, Metropolitan, Circle, and Hammersmith & City lines. Major transport hub.',
+    distance: '10 min walk',
+    link: 'https://tfl.gov.uk/tube/stop/940GZZLUMGT'
+  },
+  {
+    id: '7',
+    category: 'Transport',
+    name: 'Liverpool Street Station',
+    description: 'Central Line and National Rail. Direct trains to Stansted Airport.',
+    distance: '12 min walk',
+    link: 'https://tfl.gov.uk/tube/stop/940GZZLULVT'
+  },
+  {
+    id: '8',
+    category: 'Groceries',
+    name: 'Sainsbury\'s Upper Street',
+    description: 'Full-service supermarket. Open 7am-11pm daily.',
+    distance: '3 min walk',
+    link: 'https://stores.sainsburys.co.uk/0324'
+  },
+  {
+    id: '9',
     category: 'Groceries',
     name: 'Waitrose & Partners',
-    description: 'High-quality groceries and essentials.',
-    distance: '4 min walk',
-    link: '#'
+    description: 'Premium groceries and essentials. Quality fresh produce and prepared meals.',
+    distance: '6 min walk',
+    link: 'https://www.waitrose.com'
+  },
+  {
+    id: '10',
+    category: 'Activities',
+    name: 'Columbia Road Flower Market',
+    description: 'Iconic Sunday flower market (8am-3pm). Beautiful blooms at great prices in a vibrant atmosphere.',
+    distance: '18 min walk',
+    link: 'https://www.columbiaroad.info'
+  },
+  {
+    id: '11',
+    category: 'Activities',
+    name: 'Shoreditch Park',
+    description: 'Hackney\'s largest park with football pitch, tennis courts, BMX track, and public art. Green Flag award winner.',
+    distance: '15 min walk',
+    link: 'https://hackney.gov.uk/shoreditch-park'
+  },
+  {
+    id: '12',
+    category: 'Activities',
+    name: 'Museum of the Home',
+    description: 'Interactive museum showcasing London home interiors through the ages. Free entry, beautiful gardens.',
+    distance: '20 min walk',
+    link: 'https://www.museumofthehome.org.uk'
+  },
+  {
+    id: '13',
+    category: 'Activities',
+    name: 'Brick Lane',
+    description: 'Famous for vintage shopping, street art, bagels, and curry houses. Vibrant Sunday market.',
+    distance: '12 min walk',
+    link: 'https://www.visitlondon.com/things-to-do/place/27795-brick-lane'
   }
 ];

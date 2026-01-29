@@ -43,7 +43,7 @@ const AssistantView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] animate-in slide-in-from-right duration-500">
+    <div className="flex flex-col h-[calc(100dvh-200px)] animate-in slide-in-from-right duration-500">
       <header className="mb-4">
         <h1 className="font-serif text-3xl">AI Concierge</h1>
         <p className="text-luxury-black/60 dark:text-luxury-off/60 text-sm">Ask about wifi, appliances, or checkout.</p>

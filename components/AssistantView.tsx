@@ -88,7 +88,7 @@ const AssistantView: React.FC = () => {
       </div>
 
       {/* Input area */}
-      <div className="mt-4 safe-area-bottom pb-4 mb-12">
+      <div className="mt-4 safe-area-bottom pb-4">
         <div className="glass rounded-2xl flex items-center p-2 border border-earth/20 shadow-lg">
           <input
             type="text"

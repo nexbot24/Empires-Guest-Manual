@@ -3,7 +3,8 @@ import { GoogleGenAI } from "@google/genai";
 import { PROPERTY_DATA, MANUAL_SECTIONS } from "../constants";
 
 export const askAssistant = async (question: string) => {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || "";
+  // @ts-ignore - Vite env variables
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY || "";
 
   if (!apiKey) {
     return "I'm sorry, the AI Host is not configured yet. Please contact support for assistance.";

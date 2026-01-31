@@ -54,7 +54,7 @@ const AssistantView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-120px)] animate-in slide-in-from-right duration-500 relative">
+    <div className="flex flex-col h-[85vh] animate-in slide-in-from-right duration-500 relative">
       <header className="mb-4 flex-shrink-0">
         <h1 className="font-serif text-3xl">AI Concierge</h1>
         <p className="text-luxury-black/60 dark:text-luxury-off/60 text-sm">Ask about wifi, appliances, or checkout.</p>
@@ -99,7 +99,7 @@ const AssistantView: React.FC = () => {
       </div>
 
       {/* Input area */}
-      <div className="mt-2 safe-area-bottom pb-4 flex-shrink-0">
+      <div className="mt-2 safe-area-bottom pb-24 flex-shrink-0">
         <div className="glass rounded-2xl flex items-center p-2 border border-earth/20 shadow-lg">
           <input
             type="text"

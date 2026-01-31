@@ -25,9 +25,8 @@ export const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Arrival & Access',
     icon: 'Key',
     content: [
-      'The main entrance uses a smart lock. Your unique code is sent via email.',
-      'To unlock: Enter code followed by #. The handle will flash green.',
-      'Building access after 10 PM requires your key fob located in the kitchen bowl.'
+      'Self Check-In: We operate a seamless self check-in system for your convenience.',
+      'Access Codes: Unique codes for each door will be shared with you promptly after the check-in form is completed.'
     ]
   },
   {
@@ -35,9 +34,8 @@ export const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Kitchen Appliances',
     icon: 'Utensils',
     content: [
-      'Coffee Machine: Nespresso Vertuo. Pods are provided in the drawer.',
-      'Induction Hob: Requires magnetic cookware. Tap power then select zone.',
-      'Dishwasher: Tablets are under the sink. Use the Eco mode for best results.'
+      'Appliances: The kitchen is fully equipped with a toaster, kettle, microwave, and induction hob.',
+      'Induction Hob: Tap the power button to turn on, select the desired zone, and adjust the heat setting.'
     ]
   },
   {
@@ -45,9 +43,9 @@ export const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Climate Control',
     icon: 'Thermometer',
     content: [
-      'The Nest thermostat is located in the hallway.',
-      'Turn the outer ring to adjust temperature.',
-      'Underfloor heating in the bathroom is automatic and set to 23°C.'
+      'Bedroom Heating: There is an electric heater in the bedroom. Simply press the button on the unit to turn it on.',
+      'Main Room Thermostat: Located on the wall opposite the bathroom.',
+      'Adjusting Temperature: Press the "On" button in the top right corner of the thermostat and adjust the temperature to your comfort.'
     ]
   },
   {
@@ -55,9 +53,17 @@ export const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Waste & Recycling',
     icon: 'Trash2',
     content: [
-      'General waste (black bags) goes in the bin outside the kitchen door.',
-      'Recycling (clear bags) is collected every Tuesday and Friday morning.',
-      'Glass must be taken to the community bin at the end of the street.'
+      'Cleaning Service: Our cleaners will remove all rubbish after your stay, so you do not need to worry about it.',
+      'Spare Bags: If the bin becomes full, spare black bags can be found in the cupboard under the sink.'
+    ]
+  },
+  {
+    id: 'entertainment',
+    title: 'Entertainment',
+    icon: 'Tv',
+    content: [
+      'Smart TV: The apartment features a Smart TV for your enjoyment.',
+      'Netflix: We have pre-logged you into our "Haven" Netflix account, so you can start watching immediately.'
     ]
   }
 ];

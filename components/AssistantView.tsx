@@ -14,7 +14,7 @@ const AssistantView: React.FC = () => {
     {
       id: '1',
       role: 'assistant',
-      content: "Hello! I'm your Empires Property Virtual Concierge. How can I help you with your stay today?"
+      content: "Hi there! I'm your digital concierge. How can I help you settle in?"
     }
   ]);
   const [input, setInput] = useState('');

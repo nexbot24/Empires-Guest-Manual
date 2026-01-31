@@ -100,6 +100,17 @@
     .safe-area-bottom {
       padding-bottom: env(safe-area-inset-bottom);
     }
+
+    @media screen and (max-width: 768px) {
+
+      input[type="text"],
+      input[type="number"],
+      input[type="email"],
+      input[type="password"],
+      textarea {
+        font-size: 16px !important;
+      }
+    }
   </style>
   <script type="importmap">
 {

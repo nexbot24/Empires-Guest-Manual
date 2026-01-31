@@ -1,6 +1,6 @@
 
 import { GoogleGenAI } from "@google/genai";
-import { PROPERTY_DATA, MANUAL_SECTIONS } from "../constants";
+import { PROPERTY_DATA, MANUAL_SECTIONS, RECOMMENDATIONS } from "../constants";
 
 export const askAssistant = async (question: string) => {
   // @ts-ignore - Vite env variables
@@ -13,6 +13,8 @@ export const askAssistant = async (question: string) => {
   const ai = new GoogleGenAI({ apiKey });
 
   const manualContext = MANUAL_SECTIONS.map(s => `${s.title}: ${s.content.join(' ')}`).join('\n');
+  const recommendationContext = RECOMMENDATIONS.map(r => `${r.name} (${r.category}): ${r.description} - ${r.distance}`).join('\n');
+
   const propertyContext = `
     Property: ${PROPERTY_DATA.name}
     Address: ${PROPERTY_DATA.address}
@@ -23,15 +25,22 @@ export const askAssistant = async (question: string) => {
 
   const systemInstruction = `
     You are the "Empires Property Virtual Concierge". 
-    You are helpful, professional, and luxurious in tone.
-    Your knowledge is limited to the following property information:
+    Tone: Friendly, bright, and helpful, but NOT chatty. Be concise.
+    
+    CRITICAL INSTRUCTION FOR WIFI:
+    If the user asks about WiFi, internet, or password, ONLY reply with the Network Name and Password. Do not add any greeting or extra text.
+    
+    Your Knowledge Base:
     ${propertyContext}
     
-    Property Manual Details:
+    Property Manual:
     ${manualContext}
     
-    If the user asks something not in this context, politely inform them you don't have that specific information and suggest they contact support at ${PROPERTY_DATA.emergencyContact}.
-    Keep responses concise and formatted for mobile viewing.
+    Local Recommendations:
+    ${recommendationContext}
+    
+    If the user asks something not in this context, politely say you don't know and suggest contacting support at ${PROPERTY_DATA.emergencyContact}.
+    Keep responses short and perfect for reading on a mobile phone.
   `;
 
   try {

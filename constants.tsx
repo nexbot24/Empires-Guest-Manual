@@ -71,106 +71,106 @@ export const MANUAL_SECTIONS: ManualSection[] = [
 export const RECOMMENDATIONS: Recommendation[] = [
   {
     id: '1',
-    category: 'Dining',
-    name: 'Trullo',
-    description: 'Exceptional Italian restaurant known for some of London\'s best handmade pasta. Perfect for date night.',
-    distance: '12 min walk',
-    link: 'https://www.trullorestaurant.com'
+    category: 'Groceries',
+    name: 'Sainsbury\'s Local',
+    description: 'Convenient corner store for essentials, snacks, and drinks. Open 7am-11pm daily.',
+    distance: '1 min walk',
+    link: 'https://stores.sainsburys.co.uk'
   },
   {
     id: '2',
     category: 'Dining',
-    name: 'Afghan Kitchen',
-    description: 'Long-standing local favorite overlooking Islington Green. Hearty stews, rice dishes, and authentic breads.',
-    distance: '8 min walk',
-    link: 'https://www.afghankitchen.com'
+    name: 'Nando\'s',
+    description: 'Famous Afro-Portuguese chain serving flame-grilled chicken in spicy chilli sauce.',
+    distance: '1 min walk',
+    link: 'https://www.nandos.co.uk'
   },
   {
     id: '3',
     category: 'Dining',
-    name: 'The Breakfast Club Angel',
-    description: 'Popular all-day breakfast spot on Camden Passage. Great coffee and brunch classics.',
+    name: 'Mem & Laz Brasserie',
+    description: 'Bustling venue for Mediterranean mezze and grilled dishes in a rustic setting.',
     distance: '5 min walk',
-    link: 'https://www.thebreakfastclubcafes.com'
+    link: 'http://memlaz.co.uk'
   },
   {
     id: '4',
-    category: 'Dining',
-    name: 'Sambal Shiok',
-    description: 'Addictive Malaysian laksa bar on Holloway Road. Known for signature broth bowls with authentic heat.',
-    distance: '15 min walk',
-    link: 'https://www.sambalshiok.co.uk'
+    category: 'Activities',
+    name: 'O2 Academy Islington',
+    description: 'Live music venue hosting regular gigs and club nights throughout the week.',
+    distance: '8 min walk',
+    link: 'https://www.academymusicgroup.com/o2academyislington'
   },
   {
     id: '5',
     category: 'Transport',
-    name: 'Old Street Station',
-    description: 'Northern Line. Quick access to Bank, London Bridge, and King\'s Cross.',
-    distance: '5 min walk',
-    link: 'https://tfl.gov.uk/tube/stop/940GZZLUOST'
+    name: 'Angel Underground Station',
+    description: 'Northern Line. Direct links to Bank, London Bridge, and King\'s Cross St Pancras.',
+    distance: '9 min walk',
+    link: 'https://tfl.gov.uk/tube/stop/940GZZLUAGL'
   },
   {
     id: '6',
     category: 'Transport',
-    name: 'Moorgate Station',
-    description: 'Northern, Metropolitan, Circle, and Hammersmith & City lines. Major transport hub.',
+    name: 'Highbury & Islington Station',
+    description: 'Victoria Line and Overground. Excellent for West End and East London connections.',
     distance: '10 min walk',
-    link: 'https://tfl.gov.uk/tube/stop/940GZZLUMGT'
+    link: 'https://tfl.gov.uk/tube/stop/940GZZLUHAI'
   },
   {
     id: '7',
     category: 'Transport',
-    name: 'Liverpool Street Station',
-    description: 'Central Line and National Rail. Direct trains to Stansted Airport.',
-    distance: '12 min walk',
-    link: 'https://tfl.gov.uk/tube/stop/940GZZLULVT'
+    name: 'Essex Road Station',
+    description: 'National Rail services (Great Northern) into Moorgate and Old Street.',
+    distance: '8 min walk',
+    link: 'https://www.nationalrail.co.uk/stations/essex-road'
   },
   {
     id: '8',
-    category: 'Groceries',
-    name: 'Sainsbury\'s Upper Street',
-    description: 'Full-service supermarket. Open 7am-11pm daily.',
-    distance: '3 min walk',
-    link: 'https://stores.sainsburys.co.uk/0324'
+    category: 'Dining',
+    name: 'Wingstop',
+    description: 'Casual counter-serve chain serving a variety of chicken wings and sides.',
+    distance: '10 min walk',
+    link: 'https://www.wingstop.co.uk'
   },
   {
     id: '9',
-    category: 'Groceries',
-    name: 'Waitrose & Partners',
-    description: 'Premium groceries and essentials. Quality fresh produce and prepared meals.',
-    distance: '6 min walk',
-    link: 'https://www.waitrose.com'
+    category: 'Dining',
+    name: 'Blank Street Coffee',
+    description: 'Modern coffee chain offering high-quality espresso, cold brews, and pastries.',
+    distance: '10 min walk',
+    link: 'https://www.blankstreet.com'
   },
   {
     id: '10',
-    category: 'Activities',
-    name: 'Columbia Road Flower Market',
-    description: 'Iconic Sunday flower market (8am-3pm). Beautiful blooms at great prices in a vibrant atmosphere.',
-    distance: '18 min walk',
-    link: 'https://www.columbiaroad.info'
+    category: 'Groceries',
+    name: 'Sainsbury\'s Superstore',
+    description: 'Large supermarket with a bakery, deli, and wider selection of groceries.',
+    distance: '10 min walk',
+    link: 'https://stores.sainsburys.co.uk'
   },
   {
     id: '11',
-    category: 'Activities',
-    name: 'Shoreditch Park',
-    description: 'Hackney\'s largest park with football pitch, tennis courts, BMX track, and public art. Green Flag award winner.',
-    distance: '15 min walk',
-    link: 'https://hackney.gov.uk/shoreditch-park'
+    category: 'Shopping',
+    name: 'Uniqlo',
+    description: 'Japanese retailer known for timeless basics, high-quality fabrics, and functional wear.',
+    distance: '10 min walk',
+    link: 'https://www.uniqlo.com/uk'
   },
   {
     id: '12',
-    category: 'Activities',
-    name: 'Museum of the Home',
-    description: 'Interactive museum showcasing London home interiors through the ages. Free entry, beautiful gardens.',
-    distance: '20 min walk',
-    link: 'https://www.museumofthehome.org.uk'
+    category: 'Shopping',
+    name: 'Office',
+    description: 'On-trend shoe store selling own-label and branded footwear for men and women.',
+    distance: '10 min walk',
+    link: 'https://www.office.co.uk'
   },
   {
     id: '13',
-    category: 'Activities',
-    name: 'Brick Lane',
-    description: 'Famous for vintage shopping, street art, bagels, and curry houses. Vibrant Sunday market.',
-    distance: '12 min walk',
-    link: 'https://www.visitlondon.com/things-to-do/place/27795-brick-lane'
+    category: 'Shopping',
+    name: 'Argos',
+    description: 'Catalogue retailer for technology, home essentials, toys, and more.',
+    distance: '10 min walk',
+    link: 'https://www.argos.co.uk'
   }
 ];

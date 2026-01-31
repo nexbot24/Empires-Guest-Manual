@@ -42,9 +42,20 @@ const AssistantView: React.FC = () => {
     setIsLoading(false);
   };
 
+  const formatMessage = (content: string) => {
+    // Split by ** to find bold parts
+    const parts = content.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={index} className="font-bold">{part.slice(2, -2)}</strong>;
+      }
+      return <span key={index}>{part}</span>;
+    });
+  };
+
   return (
-    <div className="flex flex-col h-[calc(100dvh-200px)] animate-in slide-in-from-right duration-500">
-      <header className="mb-4">
+    <div className="flex flex-col h-[calc(100vh-120px)] animate-in slide-in-from-right duration-500 relative">
+      <header className="mb-4 flex-shrink-0">
         <h1 className="font-serif text-3xl">AI Concierge</h1>
         <p className="text-luxury-black/60 dark:text-luxury-off/60 text-sm">Ask about wifi, appliances, or checkout.</p>
       </header>
@@ -52,7 +63,7 @@ const AssistantView: React.FC = () => {
       {/* Messages area */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto space-y-4 pr-2 no-scrollbar pb-4"
+        className="flex-1 overflow-y-auto space-y-4 pr-2 no-scrollbar pb-4 min-h-0"
       >
         {messages.map((msg) => (
           <div
@@ -68,7 +79,7 @@ const AssistantView: React.FC = () => {
                 ? 'bg-earth text-white font-medium shadow-md'
                 : 'glass text-luxury-black dark:text-luxury-off/90 shadow-sm'
                 }`}>
-                {msg.content}
+                {msg.role === 'assistant' ? formatMessage(msg.content) : msg.content}
               </div>
             </div>
           </div>
@@ -88,7 +99,7 @@ const AssistantView: React.FC = () => {
       </div>
 
       {/* Input area */}
-      <div className="mt-4 safe-area-bottom pb-4">
+      <div className="mt-2 safe-area-bottom pb-4 flex-shrink-0">
         <div className="glass rounded-2xl flex items-center p-2 border border-earth/20 shadow-lg">
           <input
             type="text"

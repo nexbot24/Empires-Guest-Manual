@@ -212,6 +212,32 @@ const HomeView: React.FC = () => {
         </button>
       </section>
 
+      {/* Book Direct CTA */}
+      <a
+        href="https://empiresproperty.co.uk/property/68f66cb631730f000fbdf0bb"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block glass p-6 rounded-3xl shadow-lg border border-earth/20 hover:border-earth/50 transition-all active:scale-[0.98] relative overflow-hidden group"
+      >
+        <div className="absolute top-0 right-0 p-4 opacity-5">
+          <Smartphone size={100} className="text-earth" />
+        </div>
+
+        <div className="relative z-10 flex items-center justify-between gap-4">
+          <div>
+            <h2 className="font-serif text-lg font-bold text-luxury-black dark:text-luxury-light mb-1">
+              Book Direct & Save
+            </h2>
+            <p className="text-sm text-luxury-black/70 dark:text-luxury-off/70">
+              Why not book direct with us next time? <span className="font-bold text-earth">(10% cheaper)</span>
+            </p>
+          </div>
+          <div className="bg-earth/10 p-3 rounded-full text-earth group-hover:bg-earth group-hover:text-white transition-colors">
+            <ChevronRight size={24} />
+          </div>
+        </div>
+      </a>
+
       {/* WiFi Connection Modal */}
       {
         showWifiModal && (

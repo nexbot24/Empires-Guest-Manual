@@ -32,7 +32,7 @@ export default async (req, context) => {
         const paymentIntent = await stripe.paymentIntents.create({
             amount,
             currency: 'gbp',
-            payment_method_types: ['card'], // Restrict to Cards (+ Apple/Google Pay), removing Amazon Pay/Klarna
+            payment_method_configuration: 'pmc_1SwT6x0NSjBsWBsahpm6pK00', // Managed in Stripe Dashboard
             metadata: {
                 productId,
                 hours,

@@ -98,7 +98,8 @@ const CheckInView: React.FC<CheckInViewProps> = ({ onComplete }) => {
             });
 
             if (!response.ok) {
-                throw new Error('Check-in failed');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Check-in failed (Unknown Server Error)');
             }
 
             setStep('success');

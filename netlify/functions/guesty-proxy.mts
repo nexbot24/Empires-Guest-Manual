@@ -4,7 +4,6 @@ import { Context, Request } from '@netlify/functions';
 const GUESTY_CLIENT_ID = process.env.GUESTY_CLIENT_ID;
 const GUESTY_CLIENT_SECRET = process.env.GUESTY_CLIENT_SECRET;
 
-// Simple in-memory cache for token
 let cachedToken: string | null = null;
 let tokenExpiry: number = 0;
 
@@ -32,8 +31,6 @@ async function getGuestyToken() {
     });
 
     if (!response.ok) {
-        const text = await response.text();
-        console.error('Guesty Auth Failed:', text);
         throw new Error(`Failed to authenticate with Guesty: ${response.statusText}`);
     }
 
@@ -45,7 +42,7 @@ async function getGuestyToken() {
 }
 
 export default async (req: Request, context: Context) => {
-    // Enable CORS
+    // CORS
     if (req.method === 'OPTIONS') {
         return new Response(null, {
             headers: {
@@ -64,42 +61,25 @@ export default async (req: Request, context: Context) => {
         const body = await req.json();
         const { action, bookingId, signature, idImage } = body;
 
-        // 1. Authenticate
         const token = await getGuestyToken();
 
-        // 2. Handle Actions
         if (action === 'check_status') {
             let reservation;
-
-            // Smart Lookup: Check if it's a Confirmation Code (Res...) or a Mongo ID (usually 24 chars)
+            // Smart Lookup
             if (bookingId && (bookingId.startsWith('Res') || bookingId.length < 20)) {
-                // Search by Confirmation Code
                 const searchRes = await fetch(`https://open-api.guesty.com/v1/reservations?confirmationCode=${bookingId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-
                 if (!searchRes.ok) throw new Error('Guesty Search Failed');
                 const searchData = await searchRes.json();
-
-                // Search returns { results: [...] } or just array depending on version/endpoint
                 const results = searchData.results || searchData;
-
-                if (!results || results.length === 0) {
-                    return new Response(JSON.stringify({ error: 'Reservation not found' }), { status: 404 });
-                }
-                reservation = results[0]; // Take first match
+                if (!results || results.length === 0) return new Response(JSON.stringify({ error: 'Reservation not found' }), { status: 404 });
+                reservation = results[0];
             } else {
-                // Direct Lookup by ID
                 const res = await fetch(`https://open-api.guesty.com/v1/reservations/${bookingId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-
-                if (!res.ok) {
-                    if (res.status === 404) {
-                        return new Response(JSON.stringify({ error: 'Reservation not found' }), { status: 404 });
-                    }
-                    throw new Error('Guesty API Error');
-                }
+                if (!res.ok) throw new Error('Guesty API Error');
                 reservation = await res.json();
             }
 
@@ -112,7 +92,6 @@ export default async (req: Request, context: Context) => {
 
         } else if (action === 'submit_checkin') {
 
-            // Allow submitting via confirmation code too by resolving ID first if needed
             let realId = bookingId;
             if (bookingId && (bookingId.startsWith('Res') || bookingId.length < 20)) {
                 const searchRes = await fetch(`https://open-api.guesty.com/v1/reservations?confirmationCode=${bookingId}`, {
@@ -120,37 +99,28 @@ export default async (req: Request, context: Context) => {
                 });
                 const searchData = await searchRes.json();
                 const results = searchData.results || searchData;
-                if (results && results.length > 0) {
-                    realId = results[0]._id;
-                } else {
-                    return new Response(JSON.stringify({ error: 'Reservation not found for update' }), { status: 404 });
-                }
+                if (results && results.length > 0) realId = results[0]._id;
+                else return new Response(JSON.stringify({ error: 'Reservation not found for update' }), { status: 404 });
             }
 
-            // Update Reservation
-            // Strategy: We can't easily trigger the native "Blue Box" (Check-in Form) because that's internal to Guesty.
-            // Best Practice: We add a TAG `guest_manual_checked_in`.
-            // The user can then set their automation to trigger "When Tag Added".
-
-            // 1. Get current tags (we might have them from the confirmation code lookup, checking...)
+            // CRITICAL: We fetch current tags first to avoid overwriting them
             let existingTags: string[] = [];
+            try {
+                const getRes = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}?fields=tags`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (getRes.ok) {
+                    const d = await getRes.json();
+                    existingTags = d.tags || [];
+                }
+            } catch (e) { console.error("Tag fetch failed", e); }
 
-            // We need to fetch the full reservation to get current tags if we don't have them
-            const getRes = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}?fields=tags`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (getRes.ok) {
-                const resData = await getRes.json();
-                existingTags = resData.tags || [];
+            // Tag Logic
+            if (!existingTags.includes('guest_manual_checked_in')) {
+                existingTags.push('guest_manual_checked_in');
             }
 
-            // 2. Add our tag if missing
-            const newTag = 'guest_manual_checked_in';
-            if (!existingTags.includes(newTag)) {
-                existingTags.push(newTag);
-            }
-
+            // FORCE UPDATE "checkIn" status
             const updateRes = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
                 method: 'PUT',
                 headers: {
@@ -158,6 +128,9 @@ export default async (req: Request, context: Context) => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
+                    checkIn: {
+                        status: 'checked_in'
+                    },
                     tags: existingTags,
                     notes: `Guest Manual Check-in Completed via App.`
                 })

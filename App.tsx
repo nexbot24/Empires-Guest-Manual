@@ -60,10 +60,10 @@ const App: React.FC = () => {
     <div className="min-h-screen max-w-md mx-auto relative flex flex-col bg-luxury-light dark:bg-luxury-black font-sans selection:bg-earth selection:text-white transition-colors duration-300">
 
       {/* CHECK-IN GATEKEEPER */}
-      {/* Only show for Haven (or non-vibe properties) */}
-      {!isCheckedIn && import.meta.env.VITE_PROPERTY_ID !== 'vibe' && (
+      {/* DISABLED FOR NOW (User Request) */}
+      {/* {!isCheckedIn && import.meta.env.VITE_PROPERTY_ID !== 'vibe' && (
         <CheckInView onComplete={handleCheckInComplete} />
-      )}
+      )} */}
 
       {/* Branding Header */}
       <header className="px-6 py-6 sticky top-0 bg-luxury-light/90 dark:bg-luxury-black/90 backdrop-blur-md z-40 border-b border-earth/10 flex items-center justify-between">

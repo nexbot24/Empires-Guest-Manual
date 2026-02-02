@@ -134,27 +134,7 @@ const HomeView: React.FC = () => {
       </div>
 
       {/* Early Check-in/out Request */}
-      <a
-        href="https://wa.me/442071014527?text=Hi!%20I%20would%20like%20to%20request%20early%20check-in%20or%20late%20check-out%20for%20my%20upcoming%20stay%20at%20Haven."
-        target="_blank"
-        rel="noopener noreferrer"
-        className="glass p-4 rounded-2xl flex items-center justify-between shadow-sm border border-earth/10 hover:border-earth/30 transition-all active:scale-[0.98]"
-      >
-        <div className="flex items-center gap-3">
-          <div className="bg-earth/10 p-2 rounded-lg">
-            <Clock size={18} className="text-earth" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold">Request Early Check-in/Late Check-out</p>
-            <p className="text-[10px] uppercase tracking-wider text-luxury-black/50 dark:text-luxury-off/50">Subject to availability</p>
-          </div>
-        </div>
-        <div className="text-earth">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7" />
-          </svg>
-        </div>
-      </a>
+
 
       {/* Wifi Card */}
       <section className="glass p-6 rounded-3xl relative overflow-hidden shadow-sm border border-earth/5 dark:border-earth/10">

@@ -4,8 +4,7 @@ import { Context, Request } from '@netlify/functions';
 const GUESTY_CLIENT_ID = process.env.GUESTY_CLIENT_ID;
 const GUESTY_CLIENT_SECRET = process.env.GUESTY_CLIENT_SECRET;
 
-// Simple in-memory cache for token (since Netlify functions act like lambdas, this persists only for warm starts)
-// For robust caching, we'd use a database, but this helps reduce calls significantly in bursts.
+// Simple in-memory cache for token
 let cachedToken: string | null = null;
 let tokenExpiry: number = 0;
 
@@ -40,7 +39,6 @@ async function getGuestyToken() {
 
     const data = await response.json();
     cachedToken = data.access_token;
-    // Set expiry to slightly less than actual expiry (usually 3600s) to be safe
     tokenExpiry = Date.now() + ((data.expires_in || 3600) * 1000) - 60000;
 
     return cachedToken;
@@ -71,46 +69,72 @@ export default async (req: Request, context: Context) => {
 
         // 2. Handle Actions
         if (action === 'check_status') {
-            // GET /reservations/{id}
-            const res = await fetch(`https://open-api.guesty.com/v1/reservations/${bookingId}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            let reservation;
 
-            if (!res.ok) {
-                if (res.status === 404) {
+            // Smart Lookup: Check if it's a Confirmation Code (Res...) or a Mongo ID (usually 24 chars)
+            if (bookingId && (bookingId.startsWith('Res') || bookingId.length < 20)) {
+                // Search by Confirmation Code
+                const searchRes = await fetch(`https://open-api.guesty.com/v1/reservations?confirmationCode=${bookingId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!searchRes.ok) throw new Error('Guesty Search Failed');
+                const searchData = await searchRes.json();
+
+                // Search returns { results: [...] } or just array depending on version/endpoint
+                const results = searchData.results || searchData;
+
+                if (!results || results.length === 0) {
                     return new Response(JSON.stringify({ error: 'Reservation not found' }), { status: 404 });
                 }
-                throw new Error('Guesty API Error');
+                reservation = results[0]; // Take first match
+            } else {
+                // Direct Lookup by ID
+                const res = await fetch(`https://open-api.guesty.com/v1/reservations/${bookingId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        return new Response(JSON.stringify({ error: 'Reservation not found' }), { status: 404 });
+                    }
+                    throw new Error('Guesty API Error');
+                }
+                reservation = await res.json();
             }
 
-            const reservation = await res.json();
-            // Check custom fields or status logic here. 
-            // For now, we return basic info to show "Hi [Name]"
             return new Response(JSON.stringify({
                 success: true,
                 guestName: reservation.guest?.fullName || 'Guest',
-                // You can add logic here: isCheckedIn: reservation.customFields?.isCheckedIn === true 
             }), {
                 headers: { "Content-Type": "application/json", 'Access-Control-Allow-Origin': '*' }
             });
 
         } else if (action === 'submit_checkin') {
-            // Update Reservation 
-            // NOTE: Uploading images encoded as base64 to Guesty is complex. 
-            // Often best to just mark a custom field "checked_in_manual" = true.
 
-            // Example: Update "min_age_verification" or similar built-in field, 
-            // OR mostly commonly: Update a Custom Field or Task.
+            // Allow submitting via confirmation code too by resolving ID first if needed
+            let realId = bookingId;
+            if (bookingId && (bookingId.startsWith('Res') || bookingId.length < 20)) {
+                const searchRes = await fetch(`https://open-api.guesty.com/v1/reservations?confirmationCode=${bookingId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const searchData = await searchRes.json();
+                const results = searchData.results || searchData;
+                if (results && results.length > 0) {
+                    realId = results[0]._id;
+                } else {
+                    return new Response(JSON.stringify({ error: 'Reservation not found for update' }), { status: 404 });
+                }
+            }
 
-            // For MVP: We will update a Note or Custom Field saying "Checked in via Guest Manual"
-            const updateRes = await fetch(`https://open-api.guesty.com/v1/reservations/${bookingId}`, {
+            // Update Reservation
+            const updateRes = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    // This creates a note on the reservation timeline
                     notes: `Guest Manual Check-in Completed. \nSignature Captured (Saved in App Logs).`
                 })
             });

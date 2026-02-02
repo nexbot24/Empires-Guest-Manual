@@ -59,13 +59,13 @@ export default async (req: Request, context: Context) => {
 
     try {
         const body = await req.json();
-        const { action, bookingId, signature, idImage } = body;
+        const { action, bookingId } = body;
 
         const token = await getGuestyToken();
 
         if (action === 'check_status') {
+            // ... (Keeping this logic minimal/standard as we removed the Auto-Check mostly)
             let reservation;
-            // Smart Lookup
             if (bookingId && (bookingId.startsWith('Res') || bookingId.length < 20)) {
                 const searchRes = await fetch(`https://open-api.guesty.com/v1/reservations?confirmationCode=${bookingId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -93,6 +93,7 @@ export default async (req: Request, context: Context) => {
         } else if (action === 'submit_checkin') {
 
             let realId = bookingId;
+            // Resolve ID if needed
             if (bookingId && (bookingId.startsWith('Res') || bookingId.length < 20)) {
                 const searchRes = await fetch(`https://open-api.guesty.com/v1/reservations?confirmationCode=${bookingId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -103,52 +104,53 @@ export default async (req: Request, context: Context) => {
                 else return new Response(JSON.stringify({ error: 'Reservation not found for update' }), { status: 404 });
             }
 
-            // CRITICAL: We fetch current tags first to avoid overwriting them
-            let existingTags: string[] = [];
+            // 1. VISIBLE UPDATE: Create a Task
+            // Updating notes is flaky/silent. Creating a Task is robust and visible.
             try {
-                const getRes = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}?fields=tags`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                // Task creation
+                const taskRes = await fetch(`https://open-api.guesty.com/v1/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: `Guest Manual Check-in Completed`,
+                        description: `Guest signed check-in via App.`,
+                        parentId: realId, // Use parentId for binding to reservation in some API versions
+                        reservationId: realId, // Explicitly linking
+                        status: 'open'
+                    })
                 });
-                if (getRes.ok) {
-                    const d = await getRes.json();
-                    existingTags = d.tags || [];
+
+                // We don't fail if task fails, we just log it
+                if (!taskRes.ok) {
+                    const tText = await taskRes.text();
+                    console.warn('Guesty Task Creation Warning:', tText);
                 }
-            } catch (e) { console.error("Tag fetch failed", e); }
 
-            // Tag Logic
-            if (!existingTags.includes('guest_manual_checked_in')) {
-                existingTags.push('guest_manual_checked_in');
-            }
-
-            // 1. SAFE UPDATE: Notes Only
-            // We stripped tags for now to isolate the issue. Let's just try to get a NOTE in there.
-            try {
-                const safeUpdate = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
+                // ALSO try to update the Note (Double tap)
+                await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        notes: `Guest Manual Check-in Completed via App so nice.`
+                        notes: `Guest Manual Check-in Completed via App. (Task Created)`
                     })
                 });
 
-                if (!safeUpdate.ok) {
-                    const errText = await safeUpdate.text();
-                    console.error('Guesty Note Update Failed:', errText);
-                    throw new Error(`Guesty Refused Note Update: ${safeUpdate.status} - ${errText}`);
-                }
             } catch (e) {
-                console.error("Safe update failed", e);
-                // We throw here because if we can't even leave a note, something is really wrong (auth/permissions)
+                console.error("Updates failed", e);
+                // Return detailed error
                 return new Response(JSON.stringify({ error: e.message }), { status: 500 });
             }
 
             // 2. RISKY UPDATE: Check-in Status
             // We try it, but we DO NOT fail the request if it fails.
             try {
-                const checkInRes = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
+                await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -160,13 +162,11 @@ export default async (req: Request, context: Context) => {
                         }
                     })
                 });
-                if (!checkInRes.ok) console.warn("Check-in status update failed (likely read-only)");
             } catch (e) {
                 console.warn("Could not force update check-in status", e);
             }
 
-            // Return success
-            return new Response(JSON.stringify({ success: true }), {
+            return new Response(JSON.stringify({ success: true, updatedId: realId }), {
                 headers: { "Content-Type": "application/json", 'Access-Control-Allow-Origin': '*' }
             });
         }

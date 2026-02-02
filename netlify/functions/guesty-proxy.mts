@@ -120,33 +120,53 @@ export default async (req: Request, context: Context) => {
                 existingTags.push('guest_manual_checked_in');
             }
 
-            // 1. SIMPLIFIED UPDATE: Tags Only
-            // We strip out everything else to ensure the request is accepted.
+            // 1. SAFE UPDATE: Notes Only
+            // We stripped tags for now to isolate the issue. Let's just try to get a NOTE in there.
             try {
-                const tagUpdateRes = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
+                const safeUpdate = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        tags: existingTags
+                        notes: `Guest Manual Check-in Completed via App so nice.`
                     })
                 });
 
-                if (!tagUpdateRes.ok) {
-                    const errText = await tagUpdateRes.text();
-                    console.error('Guesty Tag Update Failed:', errText);
-                    // Return the actual error to the frontend so we can see it in network tab if needed
-                    throw new Error(`Guesty Refused Tag Update: ${errText}`);
+                if (!safeUpdate.ok) {
+                    const errText = await safeUpdate.text();
+                    console.error('Guesty Note Update Failed:', errText);
+                    throw new Error(`Guesty Refused Note Update: ${safeUpdate.status} - ${errText}`);
                 }
             } catch (e) {
-                console.error(e);
+                console.error("Safe update failed", e);
+                // We throw here because if we can't even leave a note, something is really wrong (auth/permissions)
                 return new Response(JSON.stringify({ error: e.message }), { status: 500 });
             }
 
+            // 2. RISKY UPDATE: Check-in Status
+            // We try it, but we DO NOT fail the request if it fails.
+            try {
+                const checkInRes = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        checkIn: {
+                            status: 'checked_in'
+                        }
+                    })
+                });
+                if (!checkInRes.ok) console.warn("Check-in status update failed (likely read-only)");
+            } catch (e) {
+                console.warn("Could not force update check-in status", e);
+            }
+
             // Return success
-            return new Response(JSON.stringify({ success: true, tags: existingTags }), {
+            return new Response(JSON.stringify({ success: true }), {
                 headers: { "Content-Type": "application/json", 'Access-Control-Allow-Origin': '*' }
             });
         }

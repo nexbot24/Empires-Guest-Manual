@@ -27,10 +27,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
         if (isOpen && product) {
             setLoading(true);
             setPaymentSuccess(false);
+            setClientSecret(''); // Clear previous secret to avoid stale price
+
             // Create PaymentIntent as soon as the modal opens
             // Use relative path for Netlify Functions (works locally if using netlify dev, or live)
             // Fallback to localhost if not on Netlify (handling via .env or simple logic is better, but strictly for the requested "push" we switch to relative)
-            const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:4242/create-payment-intent' : '/.netlify/functions/create-payment-intent';
 
             // Actually, for a pure switch to "live", we prefer valid relative paths. 
             // BUT, on localhost:3000 (Vite) without netlify-cli, relative path won't work unless proxied.
@@ -105,7 +106,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-luxury-black w-full max-w-md rounded-2xl shadow-2xl p-6 relative flex flex-col max-h-[90vh] overflow-y-auto no-scrollbar">
+            <div className="bg-white dark:bg-luxury-black w-full max-w-md rounded-2xl shadow-2xl p-6 relative flex flex-col max-h-[85vh] overflow-y-auto no-scrollbar my-4">
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 z-10"
@@ -113,10 +114,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
                     <X size={24} />
                 </button>
 
-                <h2 className="text-2xl font-serif text-luxury-black dark:text-luxury-light mb-2 pr-8">
+                <h2 className="text-2xl font-serif text-luxury-black dark:text-luxury-light mb-2 pr-8 shrink-0">
                     {product.name}
                 </h2>
-                <div className="flex flex-col gap-1 mb-6">
+                <div className="flex flex-col gap-1 mb-6 shrink-0">
                     <p className="text-earth font-medium">
                         Total: £{((product.price * hours) / 100).toFixed(2)}
                     </p>
@@ -139,13 +140,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
                     </div>
                 ) : (
                     <>
-                        {clientSecret && (
+                        {!loading && clientSecret ? (
                             <Elements options={{ clientSecret, appearance: { theme: 'stripe' }, loader: 'auto' }} stripe={stripePromise}>
                                 <CheckoutForm onSuccess={handleSuccess} onCancel={onClose} />
                             </Elements>
-                        )}
-
-                        {loading && (
+                        ) : (
                             <div className="flex justify-center py-12">
                                 <Loader2 className="animate-spin text-earth" size={32} />
                             </div>

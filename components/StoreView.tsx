@@ -23,7 +23,7 @@ const StoreView: React.FC = () => {
     };
 
     const incrementHours = () => {
-        if (hours < 12) setHours(h => h + 1);
+        if (hours < 4) setHours(h => h + 1);
     };
 
     const decrementHours = () => {
@@ -87,7 +87,7 @@ const StoreView: React.FC = () => {
                                         setSelectedProduct(product);
                                         setHours(2);
                                     } else {
-                                        setHours(hours + 1);
+                                        setHours(Math.min(4, hours + 1));
                                     }
                                 }} className="p-1 hover:text-earth transition-colors">
                                     <Plus size={16} />

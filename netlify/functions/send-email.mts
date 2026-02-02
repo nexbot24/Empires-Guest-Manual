@@ -18,7 +18,7 @@ export default async (req: Request, context: any) => {
         // 1. Send Guest Confirmation (if email provided)
         if (to) {
             await resend.emails.send({
-                from: 'Empires Property <noreply@empiresproperty.co.uk>', // Needs domain verification or use 'onboarding@resend.dev' for testing
+                from: 'Empires Property <onboarding@resend.dev>', // MUST use this for testing/free tier until domain is verified
                 to: [to],
                 subject: `Order Confirmation: ${productName}`,
                 react: GuestConfirmation({
@@ -34,7 +34,7 @@ export default async (req: Request, context: any) => {
 
         // 2. Send Host Alert
         await resend.emails.send({
-            from: 'Empires Property <noreply@empiresproperty.co.uk>',
+            from: 'Empires Property <onboarding@resend.dev>',
             to: ['empirespropertyltd@gmail.com'], // Updated to user's real email
             subject: `New Order: ${productName} (${propertyId})`,
             react: HostAlert({

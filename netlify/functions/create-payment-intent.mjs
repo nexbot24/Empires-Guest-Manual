@@ -6,8 +6,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 const PRODUCTS = {
-    'early-checkin': { price: 100 },
-    'late-checkout': { price: 1000 },
+    'early-checkin': { price: 1250 },
+    'late-checkout': { price: 1250 },
 };
 
 export default async (req, context) => {
@@ -32,9 +32,7 @@ export default async (req, context) => {
         const paymentIntent = await stripe.paymentIntents.create({
             amount,
             currency: 'gbp',
-            automatic_payment_methods: {
-                enabled: true,
-            },
+            payment_method_types: ['card'], // Restrict to Cards (+ Apple/Google Pay), removing Amazon Pay/Klarna
             metadata: {
                 productId,
                 hours,

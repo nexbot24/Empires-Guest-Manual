@@ -35,7 +35,7 @@ export default async (req: Request, context: any) => {
         // 2. Send Host Alert
         await resend.emails.send({
             from: 'Empires Property <noreply@empiresproperty.co.uk>',
-            to: ['host@empiresproperty.co.uk'], // Replace with actual host email
+            to: ['empirespropertyltd@gmail.com'], // Updated to user's real email
             subject: `New Order: ${productName} (${propertyId})`,
             react: HostAlert({
                 guestName,

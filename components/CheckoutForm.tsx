@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { PaymentElement, LinkAuthenticationElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Loader2 } from 'lucide-react';
 
 interface CheckoutFormProps {
@@ -13,6 +13,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onSuccess, onCancel }) => {
     const elements = useElements();
     const [error, setError] = useState<string | null>(null);
     const [processing, setProcessing] = useState(false);
+    const [email, setEmail] = useState('');
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -37,13 +38,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onSuccess, onCancel }) => {
             setProcessing(false);
         } else if (paymentIntent && paymentIntent.status === 'succeeded') {
             // Payment succeeded
-            onSuccess(paymentIntent.receipt_email || undefined);
+            // Use the locally captured email if receipt_email is missing
+            onSuccess(paymentIntent.receipt_email || email || undefined);
             setProcessing(false);
         }
     };
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
+            <LinkAuthenticationElement onChange={(e) => setEmail(e.value.email)} />
             <PaymentElement />
             {error && <div className="text-red-500 text-sm">{error}</div>}
             <div className="flex gap-3">

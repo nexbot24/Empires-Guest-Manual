@@ -10,9 +10,15 @@ import AssistantView from './components/AssistantView';
 import { Sun, Moon } from 'lucide-react';
 import logo from './assets/logo.png';
 
+import CheckInView from './components/CheckInView';
+
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>(Tab.HOME);
   const [isDark, setIsDark] = useState(true);
+
+  // Guesty Check-in Gatekeeper State
+  // Default to FALSE to force check-in flow (in real app, check localStorage or API)
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
 
   useEffect(() => {
     if (isDark) {
@@ -41,6 +47,12 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen max-w-md mx-auto relative flex flex-col bg-luxury-light dark:bg-luxury-black font-sans selection:bg-earth selection:text-white transition-colors duration-300">
+
+      {/* CHECK-IN GATEKEEPER */}
+      {!isCheckedIn && (
+        <CheckInView onComplete={() => setIsCheckedIn(true)} />
+      )}
+
       {/* Branding Header */}
       <header className="px-6 py-6 sticky top-0 bg-luxury-light/90 dark:bg-luxury-black/90 backdrop-blur-md z-40 border-b border-earth/10 flex items-center justify-between">
         <div className="flex items-center gap-3">

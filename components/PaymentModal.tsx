@@ -8,8 +8,8 @@ import { Product } from '../types';
 import { PROPERTY_DATA } from '../constants';
 
 // Initialize Stripe outside component to avoid recreating object on renders
-// Replace with your actual publishable key or environment variable
-const stripePromise = loadStripe('pk_test_51SkOi71iEIfdAa4l5b2KgkYcDwoKp3PT9S2fQ7JHR47eWa9vTs2aGiVT4HMQYpipW8UFOLqzR2B2iMWpCnWfok8z008w4WNTjm');
+// Initialize Stripe outside component to avoid recreating object on renders
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 interface PaymentModalProps {
     product: Product;

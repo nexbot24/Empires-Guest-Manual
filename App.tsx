@@ -17,8 +17,15 @@ const App: React.FC = () => {
   const [isDark, setIsDark] = useState(true);
 
   // Guesty Check-in Gatekeeper State
-  // Default to FALSE to force check-in flow (in real app, check localStorage or API)
-  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  // Check localStorage first, default to FALSE if not found
+  const [isCheckedIn, setIsCheckedIn] = useState(() => {
+    return localStorage.getItem('guest_checked_in') === 'true';
+  });
+
+  const handleCheckInComplete = () => {
+    setIsCheckedIn(true);
+    localStorage.setItem('guest_checked_in', 'true');
+  };
 
   useEffect(() => {
     if (isDark) {
@@ -50,7 +57,7 @@ const App: React.FC = () => {
 
       {/* CHECK-IN GATEKEEPER */}
       {!isCheckedIn && (
-        <CheckInView onComplete={() => setIsCheckedIn(true)} />
+        <CheckInView onComplete={handleCheckInComplete} />
       )}
 
       {/* Branding Header */}

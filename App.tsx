@@ -5,6 +5,7 @@ import Navigation from './components/Navigation';
 import HomeView from './components/HomeView';
 import GuideView from './components/GuideView';
 import LocalView from './components/LocalView';
+import StoreView from './components/StoreView';
 import AssistantView from './components/AssistantView';
 import { Sun, Moon } from 'lucide-react';
 import logo from './assets/logo.png';
@@ -29,6 +30,8 @@ const App: React.FC = () => {
         return <GuideView />;
       case Tab.LOCAL:
         return <LocalView />;
+      case Tab.STORE:
+        return <StoreView />;
       case Tab.ASSISTANT:
         return <AssistantView />;
       default:

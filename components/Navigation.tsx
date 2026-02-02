@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, BookOpen, MapPin, MessageSquare } from 'lucide-react';
+import { Home, BookOpen, MapPin, MessageSquare, ShoppingBag } from 'lucide-react';
 import { Tab } from '../types';
 
 interface NavigationProps {
@@ -13,6 +13,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab }) => {
     { id: Tab.HOME, label: 'Home', icon: Home },
     { id: Tab.GUIDE, label: 'Guide', icon: BookOpen },
     { id: Tab.LOCAL, label: 'Local', icon: MapPin },
+    { id: Tab.STORE, label: 'Store', icon: ShoppingBag },
     { id: Tab.ASSISTANT, label: 'AI Host', icon: MessageSquare },
   ];
 
@@ -26,9 +27,8 @@ const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab }) => {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center justify-center flex-1 transition-all duration-300 ${
-                isActive ? 'text-earth' : 'text-luxury-black/40 dark:text-luxury-off/50'
-              }`}
+              className={`flex flex-col items-center justify-center flex-1 transition-all duration-300 ${isActive ? 'text-earth' : 'text-luxury-black/40 dark:text-luxury-off/50'
+                }`}
             >
               <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
               <span className="text-[10px] mt-1 font-medium tracking-wide uppercase">

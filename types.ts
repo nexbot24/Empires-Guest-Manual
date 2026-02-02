@@ -3,7 +3,16 @@ export enum Tab {
   HOME = 'home',
   GUIDE = 'guide',
   LOCAL = 'local',
-  ASSISTANT = 'assistant'
+  ASSISTANT = 'assistant',
+  STORE = 'store'
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number; // in pence
+  type: 'hourly' | 'fixed';
 }
 
 export interface PropertyInfo {

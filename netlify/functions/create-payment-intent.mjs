@@ -32,6 +32,7 @@ export default async (req, context) => {
         const paymentIntent = await stripe.paymentIntents.create({
             amount,
             currency: 'gbp',
+            automatic_payment_methods: { enabled: true },
             payment_method_configuration: 'pmc_1SwT6x0NSjBsWBsahpm6pK00', // Managed in Stripe Dashboard
             metadata: {
                 productId,

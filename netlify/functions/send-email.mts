@@ -27,6 +27,7 @@ export default async (req: Request, context: any) => {
                     price,
                     propertyName: propertyId === 'vibe' ? 'Vibe' : 'Haven',
                     propertyAddress: propertyId === 'vibe' ? '330 Upper Street' : '330 Upper Street',
+                    propertyId: propertyId, // Pass ID for logo URL
                     newTime
                 }),
             });

@@ -10,7 +10,6 @@ import {
     Section,
     Text,
     Img,
-    Link,
     Hr,
 } from '@react-email/components';
 
@@ -23,6 +22,7 @@ interface GuestConfirmationProps {
     checkInTime?: string;
     checkOutTime?: string;
     newTime?: string;
+    propertyId?: string;
 }
 
 export const GuestConfirmation = ({
@@ -32,9 +32,19 @@ export const GuestConfirmation = ({
     propertyName = 'Haven',
     propertyAddress = '330 Upper Street, London',
     newTime = '2:00 PM',
+    propertyId = 'haven',
 }: GuestConfirmationProps) => {
     const isCheckIn = productName.toLowerCase().includes('check-in');
     const timeLabel = isCheckIn ? 'New Check-in Time' : 'New Check-out Time';
+
+    // Dynamic logo URL based on property
+    // Default to a safe placeholder if logic fails, but standard is sub-domain based.
+    const baseUrl = propertyId === 'vibe'
+        ? 'https://vibe.empiresproperty.co.uk'
+        : 'https://haven.empiresproperty.co.uk';
+
+    // Fallback logic for local dev if needed, but for email we need absolute public URLs
+    const logoUrl = `${baseUrl}/assets/logo.png`;
 
     return (
         <Html>
@@ -42,8 +52,19 @@ export const GuestConfirmation = ({
             <Preview>Receipt for your {productName} at {propertyName}</Preview>
             <Body style={main}>
                 <Container style={container}>
+                    {/* Logo Section */}
+                    <Section style={{ textAlign: 'center' as const, marginTop: '32px', marginBottom: '32px' }}>
+                        <Img
+                            src={logoUrl}
+                            alt={propertyName}
+                            width="64"
+                            height="64"
+                            style={{ margin: '0 auto' }}
+                        />
+                    </Section>
+
                     <Heading style={h1}>{propertyName.toUpperCase()}</Heading>
-                    <Text style={heroText}>Use Your New Time</Text>
+                    <Text style={heroText}>USE YOUR NEW TIME</Text>
 
                     <Section style={box}>
                         <Text style={paragraph}>Hi {guestName},</Text>
@@ -51,6 +72,7 @@ export const GuestConfirmation = ({
                             Thank you for confirming your <strong>{productName}</strong>.
                         </Text>
                         <Hr style={hr} />
+
                         <Text style={label}>{timeLabel}</Text>
                         <Text style={timeValue}>{newTime}</Text>
 
@@ -59,12 +81,15 @@ export const GuestConfirmation = ({
                         </Text>
                         <Hr style={hr} />
                         <Text style={paragraph}>
-                            Total Paid: <strong>{price}</strong>
+                            Total Paid: <strong style={{ color: '#1C1917' }}>{price}</strong>
                         </Text>
                     </Section>
 
                     <Text style={footer}>
                         {propertyName} • {propertyAddress}
+                    </Text>
+                    <Text style={footerLinks}>
+                        Sent with ♥ by Empires Property
                     </Text>
                 </Container>
             </Body>
@@ -72,79 +97,104 @@ export const GuestConfirmation = ({
     );
 };
 
-// Styles
+// Luxury Brand Colors matches tailwind.config.ts
+// Earth: #8B735B
+// Sand: #F5F2EF
+// Luxury Black: #1C1917
+// Luxury Off: #E8E2DA
+
 const main = {
-    backgroundColor: '#f6f9fc',
-    fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
+    backgroundColor: '#F5F2EF', // Sand
+    fontFamily: '"Bodoni Moda", Georgia, "Times New Roman", serif',
 };
 
 const container = {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#F5F2EF', // Seamless blend with body
     margin: '0 auto',
-    padding: '40px 0 48px',
+    padding: '0px 0 48px',
     marginBottom: '64px',
 };
 
 const h1 = {
-    color: '#1a1a1a',
-    fontFamily: 'Georgia, serif', // Serif for luxury feel
+    color: '#1C1917', // Luxury Black
+    fontFamily: '"Bodoni Moda", Georgia, serif',
     fontSize: '32px',
     fontWeight: '400',
     textAlign: 'center' as const,
-    margin: '0 0 10px',
-    letterSpacing: '4px',
+    margin: '0 0 16px',
+    letterSpacing: '0.2em', // tracking-widest
 };
 
 const heroText = {
-    fontSize: '18px',
+    fontSize: '14px',
+    fontFamily: 'Inter, Helvetica, Arial, sans-serif', // Sans for subtitle
     textAlign: 'center' as const,
-    color: '#666',
+    color: '#8B735B', // Earth color
     marginBottom: '40px',
     textTransform: 'uppercase' as const,
-    letterSpacing: '1px',
+    letterSpacing: '0.15em',
+    fontWeight: '600',
 };
 
 const box = {
     padding: '40px',
-    backgroundColor: '#fafafa', // Slightly off-white box
-    border: '1px solid #eaeaea',
-    marginBottom: '40px',
+    backgroundColor: '#FFFFFF',
+    borderRadius: '2px', // Sharp luxury corners
+    boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+    margin: '0 24px',
+    border: '1px solid #E8E2DA', // Luxury Off border
 };
 
 const paragraph = {
     fontSize: '16px',
     lineHeight: '26px',
-    color: '#444',
+    color: '#444444',
+    fontFamily: 'Inter, Helvetica, Arial, sans-serif',
     marginBottom: '16px',
 };
 
 const label = {
-    fontSize: '14px',
-    color: '#8898aa',
+    fontSize: '12px',
+    color: '#8B735B', // Earth
     textTransform: 'uppercase' as const,
-    letterSpacing: '1px',
-    marginTop: '20px',
-    marginBottom: '8px',
+    letterSpacing: '2px',
+    marginTop: '24px',
+    marginBottom: '12px',
+    fontFamily: 'Inter, Helvetica, Arial, sans-serif',
+    fontWeight: '600',
 };
 
 const timeValue = {
-    fontSize: '36px',
-    fontFamily: 'Georgia, serif',
-    color: '#1a1a1a',
-    fontWeight: 'bold',
+    fontSize: '42px',
+    fontFamily: '"Bodoni Moda", Georgia, serif',
+    color: '#1C1917', // Luxury Black
+    fontWeight: '400',
     marginTop: '0',
-    marginBottom: '20px',
+    marginBottom: '24px',
+    letterSpacing: '-0.02em',
 };
 
 const hr = {
-    borderColor: '#e6ebf1',
+    borderColor: '#E8E2DA', // Luxury Off
     margin: '24px 0',
 };
 
 const footer = {
-    color: '#8898aa',
+    color: '#8B735B', // Earth
     fontSize: '12px',
     textAlign: 'center' as const,
+    fontFamily: 'Inter, Helvetica, Arial, sans-serif',
+    marginTop: '40px',
+    letterSpacing: '0.05em',
+};
+
+const footerLinks = {
+    color: '#8B735B',
+    fontSize: '10px',
+    textAlign: 'center' as const,
+    fontFamily: 'Inter, Helvetica, Arial, sans-serif',
+    opacity: '0.6',
+    marginTop: '10px',
 };
 
 export default GuestConfirmation;

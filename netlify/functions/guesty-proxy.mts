@@ -120,23 +120,49 @@ export default async (req: Request, context: Context) => {
                 existingTags.push('guest_manual_checked_in');
             }
 
-            // FORCE UPDATE "checkIn" status
-            const updateRes = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    checkIn: {
-                        status: 'checked_in'
+            // 1. SAFE UPDATE: Tags & Notes
+            // We do this first. If this works, the User is considered "Checked In" by our App.
+            try {
+                const safeUpdate = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     },
-                    tags: existingTags,
-                    notes: `Guest Manual Check-in Completed via App.`
-                })
-            });
+                    body: JSON.stringify({
+                        tags: existingTags,
+                        notes: `Guest Manual Check-in Completed via App. \n(Check-in Status Update Attempted)`
+                    })
+                });
 
-            if (!updateRes.ok) throw new Error('Failed to update Guesty');
+                if (!safeUpdate.ok) {
+                    const errText = await safeUpdate.text();
+                    console.error('Guesty Safe Update Failed:', errText);
+                    throw new Error(`Guesty Update Failed: ${safeUpdate.status}`);
+                }
+            } catch (e) {
+                return new Response(JSON.stringify({ error: 'Failed to save check-in data.' }), { status: 500 });
+            }
+
+            // 2. RISKY UPDATE: Check-in Status
+            // Many Guesty plans/implementations block this field via API. 
+            // We try it, but we DO NOT fail the request if it fails.
+            try {
+                await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        checkIn: {
+                            status: 'checked_in'
+                        }
+                    })
+                });
+            } catch (e) {
+                console.warn("Could not force update check-in status (likely read-only)", e);
+            }
 
             return new Response(JSON.stringify({ success: true }), {
                 headers: { "Content-Type": "application/json", 'Access-Control-Allow-Origin': '*' }

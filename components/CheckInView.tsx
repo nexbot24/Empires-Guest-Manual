@@ -104,9 +104,10 @@ const CheckInView: React.FC<CheckInViewProps> = ({ onComplete }) => {
             setStep('success');
             setTimeout(onComplete, 2000);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert("There was an issue submitting your check-in. Please try again.");
+            // Show the actual error from the backend/proxy
+            alert(`Check-in Error: ${error.message || "Unknown error"}`);
             setIsSubmitting(false);
         }
     };

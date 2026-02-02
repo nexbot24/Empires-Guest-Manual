@@ -104,32 +104,55 @@ export default async (req: Request, context: Context) => {
                 else return new Response(JSON.stringify({ error: 'Reservation not found for update' }), { status: 404 });
             }
 
-            // 1. VISIBLE UPDATE: Create a Task
-            // Updating notes is flaky/silent. Creating a Task is robust and visible.
+            // 1. DATA PREP: We need the Listing ID to create a Task properly
+            let listingId = null;
             try {
-                // Task creation
+                const resDetails = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (resDetails.ok) {
+                    const resJson = await resDetails.json();
+                    listingId = resJson.listingId || (resJson.listing && resJson.listing._id);
+                }
+            } catch (e) {
+                console.warn("Could not fetch listing ID", e);
+            }
+
+            // 2. VISIBLE UPDATE: Create a Task
+            const errors = [];
+
+            try {
+                const taskPayload: any = {
+                    title: `Guest Manual Check-in Completed`,
+                    description: `Guest signed check-in via App.`,
+                    reservationId: realId,
+                    status: 'open',
+                    dueDate: new Date().toISOString()
+                };
+
+                if (listingId) taskPayload.listingId = listingId;
+
                 const taskRes = await fetch(`https://open-api.guesty.com/v1/tasks`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        title: `Guest Manual Check-in Completed`,
-                        description: `Guest signed check-in via App.`,
-                        parentId: realId, // Use parentId for binding to reservation in some API versions
-                        reservationId: realId, // Explicitly linking
-                        status: 'open'
-                    })
+                    body: JSON.stringify(taskPayload)
                 });
 
-                // We don't fail if task fails, we just log it
                 if (!taskRes.ok) {
                     const tText = await taskRes.text();
-                    console.warn('Guesty Task Creation Warning:', tText);
+                    console.error('Guesty Task Creation Failed:', tText);
+                    errors.push(`Task Error: ${tText}`);
                 }
 
-                // ALSO try to update the Note (Double tap)
+            } catch (e) {
+                errors.push(`Task Exception: ${e.message}`);
+            }
+
+            // 3. BACKUP: Update Note
+            try {
                 await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
                     method: 'PUT',
                     headers: {
@@ -137,18 +160,19 @@ export default async (req: Request, context: Context) => {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        notes: `Guest Manual Check-in Completed via App. (Task Created)`
+                        notes: `Guest Manual Check-in Completed via App. (Task Attempted)`
                     })
                 });
-
             } catch (e) {
-                console.error("Updates failed", e);
-                // Return detailed error
-                return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+                console.warn("Note update failed");
             }
 
-            // 2. RISKY UPDATE: Check-in Status
-            // We try it, but we DO NOT fail the request if it fails.
+            // IF TASK FAILED, we must tell the user
+            if (errors.length > 0) {
+                return new Response(JSON.stringify({ error: errors.join(', ') }), { status: 500 });
+            }
+
+            // 4. RISKY UPDATE: Check-in Status
             try {
                 await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
                     method: 'PUT',

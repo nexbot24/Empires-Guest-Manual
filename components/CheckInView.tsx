@@ -102,6 +102,9 @@ const CheckInView: React.FC<CheckInViewProps> = ({ onComplete }) => {
                 throw new Error(errorData.error || 'Check-in failed (Unknown Server Error)');
             }
 
+            const data = await response.json();
+            alert(`Success! Guesty Application Updated.\n${data.updatedId ? 'Task Created on Reservation.' : ''}`);
+
             setStep('success');
             setTimeout(onComplete, 2000);
 

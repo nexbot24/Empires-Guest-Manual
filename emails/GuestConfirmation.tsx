@@ -33,24 +33,27 @@ export const GuestConfirmation = ({
     propertyAddress = '330 Upper Street, London',
     newTime = '2:00 PM',
 }: GuestConfirmationProps) => {
+    const isCheckIn = productName.toLowerCase().includes('check-in');
+    const timeLabel = isCheckIn ? 'New Check-in Time' : 'New Check-out Time';
+
     return (
         <Html>
             <Head />
             <Preview>Receipt for your {productName} at {propertyName}</Preview>
             <Body style={main}>
                 <Container style={container}>
-                    <Heading style={h1}>{propertyName}</Heading>
+                    <Heading style={h1}>{propertyName.toUpperCase()}</Heading>
                     <Text style={heroText}>Use Your New Time</Text>
 
                     <Section style={box}>
                         <Text style={paragraph}>Hi {guestName},</Text>
                         <Text style={paragraph}>
-                            Thank you for purchasing <strong>{productName}</strong>. Your payment was successful.
+                            Thank you for confirming your <strong>{productName}</strong>.
                         </Text>
                         <Hr style={hr} />
-                        <Text style={paragraph}>
-                            <strong>New Time:</strong> {newTime}
-                        </Text>
+                        <Text style={label}>{timeLabel}</Text>
+                        <Text style={timeValue}>{newTime}</Text>
+
                         <Text style={paragraph}>
                             Please use your standard access code to enter at this new time.
                         </Text>
@@ -78,52 +81,69 @@ const main = {
 const container = {
     backgroundColor: '#ffffff',
     margin: '0 auto',
-    padding: '20px 0 48px',
+    padding: '40px 0 48px',
     marginBottom: '64px',
 };
 
 const h1 = {
-    color: '#333',
-    fontSize: '24px',
-    fontWeight: 'bold',
+    color: '#1a1a1a',
+    fontFamily: 'Georgia, serif', // Serif for luxury feel
+    fontSize: '32px',
+    fontWeight: '400',
     textAlign: 'center' as const,
-    margin: '30px 0',
-    textTransform: 'uppercase' as const,
+    margin: '0 0 10px',
     letterSpacing: '4px',
 };
 
 const heroText = {
-    fontSize: '20px',
-    lineHeight: '26px',
+    fontSize: '18px',
     textAlign: 'center' as const,
-    color: '#484848',
-    marginBottom: '20px',
+    color: '#666',
+    marginBottom: '40px',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '1px',
 };
 
 const box = {
-    padding: '24px',
-    backgroundColor: '#f9f9f9',
-    borderRadius: '12px',
-    margin: '0 24px',
+    padding: '40px',
+    backgroundColor: '#fafafa', // Slightly off-white box
+    border: '1px solid #eaeaea',
+    marginBottom: '40px',
 };
 
 const paragraph = {
     fontSize: '16px',
     lineHeight: '26px',
-    color: '#484848',
+    color: '#444',
+    marginBottom: '16px',
+};
+
+const label = {
+    fontSize: '14px',
+    color: '#8898aa',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '1px',
+    marginTop: '20px',
+    marginBottom: '8px',
+};
+
+const timeValue = {
+    fontSize: '36px',
+    fontFamily: 'Georgia, serif',
+    color: '#1a1a1a',
+    fontWeight: 'bold',
+    marginTop: '0',
+    marginBottom: '20px',
 };
 
 const hr = {
     borderColor: '#e6ebf1',
-    margin: '20px 0',
+    margin: '24px 0',
 };
 
 const footer = {
     color: '#8898aa',
     fontSize: '12px',
-    marginLeft: '4px',
-    marginRight: '4px',
-    marginTop: '24px',
     textAlign: 'center' as const,
 };
 

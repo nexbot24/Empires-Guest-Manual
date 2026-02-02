@@ -6,7 +6,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 const PRODUCTS = {
-    'early-checkin': { price: 1000 },
+    'early-checkin': { price: 100 },
     'late-checkout': { price: 1000 },
 };
 

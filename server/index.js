@@ -18,7 +18,7 @@ app.use(express.json());
 
 // Mock database of products - keep in sync with frontend/constants.tsx
 const PRODUCTS = {
-    'early-checkin': { price: 1000 }, // £10.00
+    'early-checkin': { price: 100 }, // £1.00
     'late-checkout': { price: 1000 }, // £10.00
 };
 

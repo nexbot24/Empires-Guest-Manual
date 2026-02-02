@@ -111,7 +111,12 @@ const StoreView: React.FC = () => {
                     product={selectedProduct}
                     hours={hours} // define this better
                     isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
+                    onClose={(paymentSuccess) => {
+                        setIsModalOpen(false);
+                        if (paymentSuccess) {
+                            setHours(1);
+                        }
+                    }}
                 />
             )}
         </div>

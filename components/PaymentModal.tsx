@@ -15,7 +15,7 @@ interface PaymentModalProps {
     product: Product;
     hours: number;
     isOpen: boolean;
-    onClose: () => void;
+    onClose: (failedOrSuccess?: boolean) => void;
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onClose }) => {
@@ -64,13 +64,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
 
     const handleSuccess = () => {
         setPaymentSuccess(true);
-        setTimeout(() => {
-            onClose();
-            setPaymentSuccess(false);
-        }, 4000); // Increased timeout to let them read the message
+        // Removed auto-close timeout. Stays open until user closes.
     };
 
-    // Helper to calculate new time
+    // ... getNewTime ...
     const getNewTime = (): string => {
         // Standard formatted times from constants: '4:00 PM', '11:00 AM'
         // Simple parser for this specific format
@@ -108,7 +105,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-white dark:bg-luxury-black w-full max-w-md rounded-2xl shadow-2xl p-6 relative flex flex-col max-h-[85vh] overflow-y-auto no-scrollbar my-4">
                 <button
-                    onClick={onClose}
+                    onClick={() => onClose(paymentSuccess)}
                     className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 z-10"
                 >
                     <X size={24} />

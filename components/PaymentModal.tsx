@@ -105,15 +105,15 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-luxury-black w-full max-w-md rounded-2xl shadow-2xl p-6 relative overflow-hidden">
+            <div className="bg-white dark:bg-luxury-black w-full max-w-md rounded-2xl shadow-2xl p-6 relative flex flex-col max-h-[90vh] overflow-y-auto no-scrollbar">
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 z-10"
                 >
                     <X size={24} />
                 </button>
 
-                <h2 className="text-2xl font-serif text-luxury-black dark:text-luxury-light mb-2">
+                <h2 className="text-2xl font-serif text-luxury-black dark:text-luxury-light mb-2 pr-8">
                     {product.name}
                 </h2>
                 <div className="flex flex-col gap-1 mb-6">

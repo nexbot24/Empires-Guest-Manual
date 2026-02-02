@@ -44,7 +44,7 @@ export const GuestConfirmation = ({
         : 'https://haven.empiresproperty.co.uk';
 
     // Fallback logic for local dev if needed, but for email we need absolute public URLs
-    const logoUrl = `${baseUrl}/assets/logo.png`;
+    const logoUrl = `${baseUrl}/logo.png`;
 
     return (
         <Html>

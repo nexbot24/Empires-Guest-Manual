@@ -62,7 +62,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
 
     if (!isOpen) return null;
 
-    const handleSuccess = async (email?: string) => {
+    const handleSuccess = async (email?: string, guestName?: string) => {
         setPaymentSuccess(true);
         // Trigger email notification
         try {
@@ -75,7 +75,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     to: email,
-                    guestName: 'Guest', // PaymentElement might not give name easily without extra fields
+                    guestName: guestName || 'Guest', // Use captured name or default
                     productName: product.name,
                     price: `£${(product.price * hours / 100).toFixed(2)}`,
                     hours,

@@ -4,7 +4,7 @@ import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { Loader2 } from 'lucide-react';
 
 interface CheckoutFormProps {
-    onSuccess: () => void;
+    onSuccess: (email?: string) => void;
     onCancel: () => void;
 }
 
@@ -24,10 +24,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onSuccess, onCancel }) => {
         setProcessing(true);
         setError(null);
 
-        const { error: submitError } = await stripe.confirmPayment({
+        const { error: submitError, paymentIntent } = await stripe.confirmPayment({
             elements,
             confirmParams: {
-                return_url: window.location.origin, // Ideally handle redirect, but for now just showing success
+                return_url: window.location.origin,
             },
             redirect: 'if_required',
         });
@@ -35,9 +35,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onSuccess, onCancel }) => {
         if (submitError) {
             setError(submitError.message || 'An error occurred');
             setProcessing(false);
-        } else {
+        } else if (paymentIntent && paymentIntent.status === 'succeeded') {
             // Payment succeeded
-            onSuccess();
+            onSuccess(paymentIntent.receipt_email || undefined);
             setProcessing(false);
         }
     };

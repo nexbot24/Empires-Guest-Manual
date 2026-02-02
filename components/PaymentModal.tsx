@@ -62,9 +62,31 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
 
     if (!isOpen) return null;
 
-    const handleSuccess = () => {
+    const handleSuccess = async (email?: string) => {
         setPaymentSuccess(true);
-        // Removed auto-close timeout. Stays open until user closes.
+        // Trigger email notification
+        try {
+            const endpoint = import.meta.env.DEV
+                ? 'http://localhost:4242/send-email' // We need to add this to server/index.js if we want local dev to work fully
+                : '/.netlify/functions/send-email';
+
+            await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    to: email,
+                    guestName: 'Guest', // PaymentElement might not give name easily without extra fields
+                    productName: product.name,
+                    price: `£${(product.price * hours / 100).toFixed(2)}`,
+                    hours,
+                    propertyId: import.meta.env.VITE_PROPERTY_ID,
+                    newTime: newTime
+                }),
+            });
+        } catch (e) {
+            console.error('Failed to send email:', e);
+            // Don't block UI success state
+        }
     };
 
     // ... getNewTime ...

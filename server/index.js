@@ -52,5 +52,11 @@ app.post('/create-payment-intent', async (req, res) => {
     }
 });
 
+app.post('/send-email', async (req, res) => {
+    console.log('📧 [Local Dev] Email Request Received:', req.body);
+    // In local dev, we just log it to avoid using up Resend quota or needing full setup
+    res.send({ success: true, message: 'Email logged in console' });
+});
+
 const PORT = 4242;
 app.listen(PORT, () => console.log(`Node server listening on port ${PORT}!`));

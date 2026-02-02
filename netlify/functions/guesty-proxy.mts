@@ -128,6 +128,29 @@ export default async (req: Request, context: Context) => {
             }
 
             // Update Reservation
+            // Strategy: We can't easily trigger the native "Blue Box" (Check-in Form) because that's internal to Guesty.
+            // Best Practice: We add a TAG `guest_manual_checked_in`.
+            // The user can then set their automation to trigger "When Tag Added".
+
+            // 1. Get current tags (we might have them from the confirmation code lookup, checking...)
+            let existingTags: string[] = [];
+
+            // We need to fetch the full reservation to get current tags if we don't have them
+            const getRes = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}?fields=tags`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (getRes.ok) {
+                const resData = await getRes.json();
+                existingTags = resData.tags || [];
+            }
+
+            // 2. Add our tag if missing
+            const newTag = 'guest_manual_checked_in';
+            if (!existingTags.includes(newTag)) {
+                existingTags.push(newTag);
+            }
+
             const updateRes = await fetch(`https://open-api.guesty.com/v1/reservations/${realId}`, {
                 method: 'PUT',
                 headers: {
@@ -135,7 +158,8 @@ export default async (req: Request, context: Context) => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    notes: `Guest Manual Check-in Completed. \nSignature Captured (Saved in App Logs).`
+                    tags: existingTags,
+                    notes: `Guest Manual Check-in Completed via App.`
                 })
             });
 

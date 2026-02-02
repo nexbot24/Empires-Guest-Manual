@@ -126,7 +126,7 @@ export default async (req: Request, context: Context) => {
                     title: `Guest Manual Check-in Completed`,
                     description: `Guest signed check-in via App.`,
                     reservationId: realId,
-                    status: 'open',
+                    status: 'pending',
                     dueDate: new Date().toISOString()
                 };
 

@@ -64,11 +64,51 @@ const CheckInView: React.FC<CheckInViewProps> = ({ onComplete }) => {
 
     const handleSubmit = async () => {
         setIsSubmitting(true);
-        // MOCK API CALL
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setIsSubmitting(false);
-        setStep('success');
-        setTimeout(onComplete, 2000); // Auto-unlock after success
+
+        // Get Booking ID from URL
+        const params = new URLSearchParams(window.location.search);
+        const bookingId = params.get('id') || params.get('booking'); // Support both ?id= and ?booking=
+
+        if (!bookingId) {
+            // If no ID, we can't sync to Guesty, but we let them in anyway (Soft Fail)
+            console.warn("No Booking ID found in URL. Skipping API sync.");
+            setStep('success');
+            setTimeout(onComplete, 2000);
+            return;
+        }
+
+        try {
+            // Get Signature Data
+            const canvas = canvasRef.current;
+            const signatureData = canvas ? canvas.toDataURL() : null;
+
+            const endpoint = import.meta.env.DEV
+                ? 'http://localhost:4242/guesty-proxy'
+                : '/.netlify/functions/guesty-proxy';
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'submit_checkin',
+                    bookingId,
+                    signature: signatureData,
+                    idImage: idImage // Base64 string
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Check-in failed');
+            }
+
+            setStep('success');
+            setTimeout(onComplete, 2000);
+
+        } catch (error) {
+            console.error(error);
+            alert("There was an issue submitting your check-in. Please try again.");
+            setIsSubmitting(false);
+        }
     };
 
     return (

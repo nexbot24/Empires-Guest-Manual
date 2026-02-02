@@ -27,6 +27,46 @@ const App: React.FC = () => {
     localStorage.setItem('guest_checked_in', 'true');
   };
 
+  // Auto-Check Status with Guesty if not locally checked in
+  useEffect(() => {
+    if (isCheckedIn) return;
+
+    const checkGuestyStatus = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const bookingId = params.get('id') || params.get('booking');
+
+      if (!bookingId) return;
+
+      try {
+        const endpoint = import.meta.env.DEV
+          ? 'http://localhost:4242/guesty-proxy'
+          : '/.netlify/functions/guesty-proxy';
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'check_status', bookingId })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          // If the API says they are already valid (logic depends on what Guesty returns)
+          // For now, we assume if we get a valid guest name, we can update the UI context, 
+          // but we might NOT auto-unlock unless we know they signed. 
+          // For this MVP, let's just log it. 
+          console.log("Guest Found:", data.guestName);
+
+          // If you want to auto-unlock if they signed previously, you'd check a field here:
+          // if (data.isSigned) handleCheckInComplete();
+        }
+      } catch (e) {
+        console.error("Auto-check failed", e);
+      }
+    };
+
+    checkGuestyStatus();
+  }, [isCheckedIn]);
+
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark');

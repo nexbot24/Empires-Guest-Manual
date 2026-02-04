@@ -1,6 +1,6 @@
 
 import { Resend } from 'resend';
-import { GuestConfirmation } from '../../emails/GuestConfirmation';
+import { StoreOrderConfirmation } from '../../emails/StoreOrderConfirmation';
 import { HostAlert } from '../../emails/HostAlert';
 
 // We need to use process.env for Netlify Functions (backend)
@@ -21,14 +21,11 @@ export default async (req: Request, context: any) => {
                 from: 'Empires Property <noreply@empiresproperty.co.uk>',
                 to: [to],
                 subject: `Order Confirmation: ${productName}`,
-                react: GuestConfirmation({
-                    guestName,
-                    productName,
-                    price,
-                    propertyName: propertyId === 'vibe' ? 'Vibe' : 'Haven',
-                    propertyAddress: propertyId === 'vibe' ? '330 Upper Street' : '330 Upper Street',
-                    propertyId: propertyId, // Pass ID for logo URL
-                    newTime
+                react: StoreOrderConfirmation({
+                    guestName: guestName || 'Guest',
+                    productName: productName,
+                    price: price.replace('£', ''), // Remove £ if present as template adds it
+                    newTime: newTime || 'Pending'
                 }),
             });
         }

@@ -254,10 +254,11 @@ const timeLabel = {
 const timeHeading = {
   margin: '0',
   fontFamily: "'Bodoni Moda', Georgia, serif",
-  fontSize: '56px',
+  fontSize: '48px',
   fontWeight: 400,
   color: '#1C1917',
   letterSpacing: '2px',
+  whiteSpace: 'nowrap' as const,
 };
 
 const paymentCard = {

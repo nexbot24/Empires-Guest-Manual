@@ -9,6 +9,7 @@ import {
   Preview,
   Section,
   Text,
+  Img,
 } from '@react-email/components';
 import * as React from 'react';
 
@@ -17,6 +18,7 @@ interface StoreOrderConfirmationProps {
   productName: string; // 'Early Check-in' or 'Late Check-out'
   newTime: string;    // '3:00 PM' etc.
   price: string;      // '50.00'
+  propertyId?: string;
 }
 
 export const StoreOrderConfirmation = ({
@@ -24,11 +26,16 @@ export const StoreOrderConfirmation = ({
   productName = 'Early Check-in',
   newTime = '3:00 PM',
   price = '12.50',
+  propertyId = 'haven',
 }: StoreOrderConfirmationProps) => {
-  
+
   const isEarly = productName.toLowerCase().includes('early');
   const actionText = isEarly ? 'Early Check-in' : 'Late Check-out';
   const timeLabel = isEarly ? 'New Check-in Time' : 'New Check-out Time';
+
+  // Determine base URL based on property (or default to main site)
+  // Ideally this should be passed in or an env var, but for now we hardcode the known production domains or use a consistent assets host
+  const baseUrl = 'https://haven.empiresproperty.co.uk';
 
   return (
     <Html>
@@ -43,10 +50,14 @@ export const StoreOrderConfirmation = ({
       <Preview>Your {actionText.toLowerCase()} at {newTime} is confirmed - Empires Property</Preview>
       <Body style={main}>
         <Container style={container}>
-          {/* Header */}
-          <Section style={header}>
-            <Heading style={logo}>EMPIRES</Heading>
-            <Text style={subtitle}>Property</Text>
+          {/* Header with Banner Image */}
+          <Section style={headerNoPadding}>
+            <Img
+              src={`${baseUrl}/assets/email-banner.png`}
+              alt="Empires Property"
+              width="600"
+              style={bannerImage}
+            />
           </Section>
 
           {/* Tagline Bar */}
@@ -57,7 +68,7 @@ export const StoreOrderConfirmation = ({
           {/* Main Content */}
           <Section style={content}>
             <Text style={greeting}>Hi {guestName},</Text>
-            
+
             <Text style={paragraph}>
               Thank you for confirming your <strong style={highlight}>{actionText}</strong>.
             </Text>
@@ -94,7 +105,7 @@ export const StoreOrderConfirmation = ({
             <Text style={paragraph}>
               We look forward to {isEarly ? 'welcoming you' : 'your next stay'}.
             </Text>
-            
+
             <Text style={closing}>
               Warm regards,<br />
               <strong style={highlight}>The Empires Property Team</strong>
@@ -137,30 +148,18 @@ const container = {
   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
 };
 
-const header = {
+const headerNoPadding = {
   backgroundColor: '#1C1917',
-  padding: '40px 40px 30px',
+  padding: '0',
   textAlign: 'center' as const,
+  lineHeight: '0', // Fix for some email clients adding space below images
 };
 
-const logo = {
-  margin: '0',
-  fontFamily: "'Bodoni Moda', Georgia, serif",
-  fontSize: '48px',
-  fontWeight: 400,
-  color: '#F5F2EF',
-  letterSpacing: '8px',
-  textTransform: 'uppercase' as const,
-};
-
-const subtitle = {
-  margin: '12px 0 0',
-  fontFamily: "'Inter', Arial, sans-serif",
-  fontSize: '13px',
-  fontWeight: 400,
-  color: '#8B735B',
-  letterSpacing: '3px',
-  textTransform: 'uppercase' as const,
+const bannerImage = {
+  maxWidth: '100%',
+  height: 'auto',
+  display: 'block',
+  border: '0',
 };
 
 const taglineBar = {

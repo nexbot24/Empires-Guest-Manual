@@ -50,14 +50,29 @@ export const StoreOrderConfirmation = ({
       <Preview>Your {actionText.toLowerCase()} at {newTime} is confirmed - Empires Property</Preview>
       <Body style={main}>
         <Container style={container}>
-          {/* Header with Banner Image */}
-          <Section style={headerNoPadding}>
-            <Img
-              src={`${baseUrl}/assets/email-banner.png`}
-              alt="Empires Property"
-              width="600"
-              style={bannerImage}
-            />
+          {/* Header */}
+          <Section style={header}>
+            <table style={{ width: '100%' }}>
+              <tbody>
+                <tr>
+                  <td style={{ verticalAlign: 'middle' }}>
+                    <Img
+                      src={`${baseUrl}/assets/email-logo.png`}
+                      alt="Empires Property"
+                      width="60"
+                      height="60"
+                      style={{ display: 'block' }}
+                    />
+                  </td>
+                  <td style={{ verticalAlign: 'middle', paddingLeft: '20px' }}>
+                    <Heading style={logo}>
+                      EMPIRES <span style={propertyText}>PROPERTY</span>
+                    </Heading>
+                    <Text style={subtitle}>Luxury Serviced Stays</Text>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </Section>
 
           {/* Tagline Bar */}
@@ -148,18 +163,34 @@ const container = {
   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
 };
 
-const headerNoPadding = {
+const header = {
   backgroundColor: '#1C1917',
-  padding: '0',
-  textAlign: 'center' as const,
-  lineHeight: '0', // Fix for some email clients adding space below images
+  padding: '30px 40px',
 };
 
-const bannerImage = {
-  maxWidth: '100%',
-  height: 'auto',
-  display: 'block',
-  border: '0',
+const logo = {
+  margin: '0',
+  fontFamily: "'Bodoni Moda', Georgia, serif",
+  fontSize: '32px',
+  fontWeight: 400,
+  color: '#F5F2EF',
+  letterSpacing: '4px',
+  lineHeight: '1.2',
+};
+
+const propertyText = {
+  color: '#8B735B',
+  fontStyle: 'italic' as const,
+};
+
+const subtitle = {
+  margin: '4px 0 0',
+  fontFamily: "'Inter', Arial, sans-serif",
+  fontSize: '11px',
+  fontWeight: 400,
+  color: '#8B735B',
+  letterSpacing: '2px',
+  textTransform: 'uppercase' as const,
 };
 
 const taglineBar = {

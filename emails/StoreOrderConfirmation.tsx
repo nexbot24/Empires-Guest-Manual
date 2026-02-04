@@ -33,9 +33,13 @@ export const StoreOrderConfirmation = ({
   const actionText = isEarly ? 'Early Check-in' : 'Late Check-out';
   const timeLabel = isEarly ? 'New Check-in Time' : 'New Check-out Time';
 
-  // Determine base URL based on property (or default to main site)
-  // Ideally this should be passed in or an env var, but for now we hardcode the known production domains or use a consistent assets host
-  const baseUrl = 'https://haven.empiresproperty.co.uk';
+  // Determine base URL based on property
+  // Note: Vibe logo might be different in future, but for now we expect 'email-logo.png' to exist on both domains
+  const getBaseUrl = (pid: string) => {
+    if (pid === 'vibe') return 'https://vibe.empiresproperty.co.uk';
+    return 'https://haven.empiresproperty.co.uk';
+  };
+  const baseUrl = getBaseUrl(propertyId);
 
   return (
     <Html>

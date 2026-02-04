@@ -25,7 +25,8 @@ export default async (req: Request, context: any) => {
                     guestName: guestName || 'Guest',
                     productName: productName,
                     price: price.replace('£', ''), // Remove £ if present as template adds it
-                    newTime: newTime || 'Pending'
+                    newTime: newTime || 'Pending',
+                    propertyId: propertyId || 'haven'
                 }),
             });
         }

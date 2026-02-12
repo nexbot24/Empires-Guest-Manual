@@ -124,8 +124,26 @@ export const handler: Handler = async (event) => {
         // Get Guesty access token
         const accessToken = await getGuestyAccessToken();
 
-        // Fetch reservation from Guesty by confirmation code
-        const reservation = await getReservationByConfirmationCode(reservationId, accessToken);
+        let reservation;
+
+        // Check if reservationId looks like a MongoDB ID (24 hex characters)
+        const isMongoId = /^[a-f0-9]{24}$/i.test(reservationId);
+
+        if (isMongoId) {
+            // Try fetching directly by ID first (most reliable)
+            console.log('Attempting direct ID lookup...');
+            try {
+                reservation = await getReservation(reservationId, accessToken);
+                console.log('Successfully fetched by ID');
+            } catch (error) {
+                console.log('Direct ID lookup failed, falling back to confirmation code search');
+                reservation = await getReservationByConfirmationCode(reservationId, accessToken);
+            }
+        } else {
+            // Not a MongoDB ID, treat as confirmation code
+            console.log('Using confirmation code search...');
+            reservation = await getReservationByConfirmationCode(reservationId, accessToken);
+        }
 
         // Check if form already completed
         const formCompleted = reservation.customFields?.['check-in_form_completed'] === true;

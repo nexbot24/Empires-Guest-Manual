@@ -32,6 +32,8 @@ async function getGuestyAccessToken(): Promise<string> {
 
 // Get reservation from Guesty
 async function getReservation(reservationId: string, accessToken: string) {
+    console.log('Fetching reservation:', reservationId);
+
     const response = await fetch(`https://open-api.guesty.com/v1/reservations/${reservationId}`, {
         method: 'GET',
         headers: {
@@ -40,8 +42,12 @@ async function getReservation(reservationId: string, accessToken: string) {
         },
     });
 
+    console.log('Guesty API response status:', response.status);
+
     if (!response.ok) {
-        throw new Error('Reservation not found');
+        const errorText = await response.text();
+        console.error('Guesty API error response:', errorText);
+        throw new Error(`Reservation not found (Status: ${response.status})`);
     }
 
     return await response.json();

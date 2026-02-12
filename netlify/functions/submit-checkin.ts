@@ -1,4 +1,3 @@
-```typescript
 import { Handler } from '@netlify/functions';
 import { tokenCache } from './lib/token-cache';
 
@@ -8,6 +7,7 @@ interface CheckInFormData {
     reservationId: string;
     guestName: string;
     reasonForTrip: string;
+    agreedToRules: boolean;
     signatureImage: string;
     signatureDate: string;
 }
@@ -23,7 +23,7 @@ async function getGuestyAccessToken(): Promise<string> {
 
     // No cached token, fetch a new one
     console.log('Fetching new Guesty token...');
-    
+
     const clientId = process.env.GUESTY_CLIENT_ID;
     const clientSecret = process.env.GUESTY_CLIENT_SECRET;
 
@@ -51,12 +51,12 @@ async function getGuestyAccessToken(): Promise<string> {
     }
 
     const data = await response.json();
-    
+
     // Cache the token
     const expiresIn = data.expires_in || 3600;
     tokenCache.set(CACHE_KEY, data.access_token, expiresIn);
-    console.log(`Token cached for ${ expiresIn } seconds`);
-    
+    console.log(`Token cached for ${expiresIn} seconds`);
+
     return data.access_token;
 }
 
@@ -67,27 +67,27 @@ async function updateReservationCustomFields(
     accessToken: string
 ): Promise<void> {
     const response = await fetch(`https://open-api.guesty.com/v1/reservations/${reservationId}`, {
-    method: 'PUT',
+        method: 'PUT',
         headers: {
-    'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
         },
-body: JSON.stringify({
-    customFields: {
-        'check-in_form_completed': true,
-        'reason_for_trip': formData.reasonForTrip,
-        'guest_signature': formData.guestName,
-        'signature_date': formData.signatureDate,
-        'signature_image': formData.signatureImage,
-    },
-}),
+        body: JSON.stringify({
+            customFields: {
+                'check-in_form_completed': true,
+                'reason_for_trip': formData.reasonForTrip,
+                'guest_signature': formData.guestName,
+                'signature_date': formData.signatureDate,
+                'signature_image': formData.signatureImage,
+            },
+        }),
     });
 
-if (!response.ok) {
-    const errorData = await response.json();
-    console.error('Guesty API error:', errorData);
-    throw new Error(`Failed to update reservation: ${errorData.message || response.statusText}`);
-}
+    if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Guesty API error:', errorData);
+        throw new Error(`Failed to update reservation: ${errorData.message || response.statusText}`);
+    }
 }
 
 export const handler: Handler = async (event) => {

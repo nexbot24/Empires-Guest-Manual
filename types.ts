@@ -40,3 +40,29 @@ export interface Recommendation {
   distance: string;
   link: string;
 }
+
+// Check-in form types
+export interface CheckInFormData {
+  reservationId: string;
+  guestName: string;
+  reasonForTrip: string;
+  agreedToRules: boolean;
+  signatureImage: string;
+  signatureDate: string;
+}
+
+export interface GuestyReservation {
+  _id: string;
+  guest?: {
+    fullName: string;
+  };
+  checkIn: string;
+  checkOut: string;
+  customFields?: {
+    'check-in_form_completed'?: boolean;
+    'reason_for_trip'?: string;
+    'guest_signature'?: string;
+    'signature_date'?: string;
+    'signature_image'?: string;
+  };
+}

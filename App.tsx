@@ -7,29 +7,19 @@ import GuideView from './components/GuideView';
 import LocalView from './components/LocalView';
 import StoreView from './components/StoreView';
 import AssistantView from './components/AssistantView';
-import { Sun, Moon } from 'lucide-react';
+import CheckInForm from './components/CheckInForm';
+import { Sun, Moon, Loader2 } from 'lucide-react';
 import logo from './assets/logo.png';
-
-import CheckInView from './components/CheckInView';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>(Tab.HOME);
   const [isDark, setIsDark] = useState(true);
-
-  // Guesty Check-in Gatekeeper State
-  // Check localStorage first, default to FALSE if not found
-  const [isCheckedIn, setIsCheckedIn] = useState(() => {
-    return localStorage.getItem('guest_checked_in') === 'true';
-  });
-
-  const handleCheckInComplete = () => {
-    setIsCheckedIn(true);
-    localStorage.setItem('guest_checked_in', 'true');
-  };
-
-  // REMOVED: Auto-Check Status with Guesty
-  // Reason: This causes "Too Many Requests" (429) errors because it logs in to Guesty on every page load.
-  // We will rely on localStorage for known users, and the "Submit" button for new users.
+  const [isCheckingReservation, setIsCheckingReservation] = useState(true);
+  const [showCheckInForm, setShowCheckInForm] = useState(false);
+  const [reservationData, setReservationData] = useState<{
+    reservationId: string;
+    guestName: string;
+  } | null>(null);
 
   useEffect(() => {
     if (isDark) {
@@ -38,6 +28,75 @@ const App: React.FC = () => {
       document.documentElement.classList.remove('dark');
     }
   }, [isDark]);
+
+  useEffect(() => {
+    // Check for reservation ID in URL params
+    const params = new URLSearchParams(window.location.search);
+    const reservationId = params.get('reservation');
+
+    if (!reservationId) {
+      // No reservation ID, allow access (for testing/development)
+      setIsCheckingReservation(false);
+      return;
+    }
+
+    // Check if form already completed in localStorage
+    const completedKey = `checkin_completed_${reservationId}`;
+    if (localStorage.getItem(completedKey) === 'true') {
+      setIsCheckingReservation(false);
+      return;
+    }
+
+    // Fetch reservation details from Guesty
+    fetch(`/.netlify/functions/get-reservation?reservationId=${reservationId}`)
+      .then(res => {
+        // Check if response is JSON
+        const contentType = res.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          // Not JSON, likely 404 - use mock data for local development
+          console.warn('Netlify Functions not available, using mock data for development');
+          return {
+            reservationId: reservationId,
+            guestName: 'Test Guest',
+            formCompleted: false
+          };
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data.formCompleted) {
+          // Form already completed in Guesty
+          localStorage.setItem(completedKey, 'true');
+          setIsCheckingReservation(false);
+        } else {
+          // Show check-in form
+          setReservationData({
+            reservationId: data.reservationId,
+            guestName: data.guestName
+          });
+          setShowCheckInForm(true);
+          setIsCheckingReservation(false);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching reservation:', error);
+        // On error, use mock data for local development
+        setReservationData({
+          reservationId: reservationId,
+          guestName: 'Test Guest'
+        });
+        setShowCheckInForm(true);
+        setIsCheckingReservation(false);
+      });
+  }, []);
+
+  const handleCheckInSuccess = () => {
+    if (reservationData) {
+      const completedKey = `checkin_completed_${reservationData.reservationId}`;
+      localStorage.setItem(completedKey, 'true');
+    }
+    setShowCheckInForm(false);
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -56,15 +115,32 @@ const App: React.FC = () => {
     }
   };
 
+  // Show loading state while checking reservation
+  if (isCheckingReservation) {
+    return (
+      <div className="min-h-screen max-w-md mx-auto flex items-center justify-center bg-luxury-light dark:bg-luxury-black">
+        <div className="text-center">
+          <Loader2 size={40} className="animate-spin text-earth mx-auto mb-4" />
+          <p className="text-luxury-black dark:text-luxury-light">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show check-in form if required
+  if (showCheckInForm && reservationData) {
+    return (
+      <CheckInForm
+        reservationId={reservationData.reservationId}
+        guestName={reservationData.guestName}
+        onSuccess={handleCheckInSuccess}
+      />
+    );
+  }
+
+  // Show normal guest manual
   return (
     <div className="min-h-screen max-w-md mx-auto relative flex flex-col bg-luxury-light dark:bg-luxury-black font-sans selection:bg-earth selection:text-white transition-colors duration-300">
-
-      {/* CHECK-IN GATEKEEPER */}
-      {/* DISABLED FOR NOW (User Request) */}
-      {/* {!isCheckedIn && import.meta.env.VITE_PROPERTY_ID !== 'vibe' && (
-        <CheckInView onComplete={handleCheckInComplete} />
-      )} */}
-
       {/* Branding Header */}
       <header className="px-6 py-6 sticky top-0 bg-luxury-light/90 dark:bg-luxury-black/90 backdrop-blur-md z-40 border-b border-earth/10 flex items-center justify-between">
         <div className="flex items-center gap-3">

@@ -1,11 +1,23 @@
 import { Handler } from '@netlify/functions';
+import { tokenCache } from './lib/token-cache';
 
-// Get Guesty access token
+const CACHE_KEY = 'guesty_access_token';
+
+// Get Guesty access token (with caching to prevent rate limiting)
 async function getGuestyAccessToken(): Promise<string> {
+    // Check cache first
+    const cachedToken = tokenCache.get(CACHE_KEY);
+    if (cachedToken) {
+        console.log('Using cached Guesty token');
+        return cachedToken;
+    }
+
+    // No cached token, fetch a new one
+    console.log('Fetching new Guesty token...');
+
     const clientId = process.env.GUESTY_CLIENT_ID;
     const clientSecret = process.env.GUESTY_CLIENT_SECRET;
 
-    console.log('Attempting Guesty authentication...');
     console.log('Client ID exists:', !!clientId);
     console.log('Client Secret exists:', !!clientSecret);
 
@@ -36,6 +48,12 @@ async function getGuestyAccessToken(): Promise<string> {
 
     const data = await response.json();
     console.log('Successfully authenticated with Guesty');
+
+    // Cache the token (Guesty tokens typically expire in 3600 seconds / 1 hour)
+    const expiresIn = data.expires_in || 3600;
+    tokenCache.set(CACHE_KEY, data.access_token, expiresIn);
+    console.log(`Token cached for ${expiresIn} seconds`);
+
     return data.access_token;
 }
 

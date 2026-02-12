@@ -14,7 +14,8 @@ interface CheckInFormData {
 async function updateReservationCustomFields(
     reservationId: string,
     formData: CheckInFormData,
-    accessToken: string
+    accessToken: string,
+    fieldMap: Record<string, string>
 ): Promise<void> {
     const response = await fetch(`https://open-api.guesty.com/v1/reservations/${reservationId}`, {
         method: 'PUT',
@@ -24,11 +25,11 @@ async function updateReservationCustomFields(
         },
         body: JSON.stringify({
             customFields: {
-                'check-in_form_completed': true,
-                'reason_for_trip': formData.reasonForTrip,
-                'guest_signature': formData.guestName,
-                'signature_date': new Date().toISOString().split('T')[0], // Guesty requires YYYY-MM-DD
-                'signature_image': formData.signatureImage,
+                [fieldMap.checkInCompleted]: true,
+                [fieldMap.reason]: formData.reasonForTrip,
+                [fieldMap.signature]: formData.guestName,
+                [fieldMap.date]: new Date().toISOString().split('T')[0],
+                [fieldMap.image]: formData.signatureImage,
             },
         }),
     });
@@ -68,8 +69,39 @@ export const handler: Handler = async (event) => {
         // Get Guesty access token
         const accessToken = await getGuestyAccessToken();
 
+        // 1. Fetch reservation to find correct custom field codes
+        console.log('Fetching reservation to identify custom field names...');
+        const getResponse = await fetch(`https://open-api.guesty.com/v1/reservations/${formData.reservationId}`, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!getResponse.ok) {
+            throw new Error('Failed to fetch reservation details for field mapping');
+        }
+
+        const reservation = await getResponse.json();
+        const availableFields = Object.keys(reservation.customFields || {});
+        console.log('Available custom fields:', availableFields);
+
+        // 2. Map fields dynamically using regex
+        const findField = (pattern: RegExp, fallback: string) =>
+            availableFields.find(key => pattern.test(key)) || fallback;
+
+        const fieldMap = {
+            checkInCompleted: findField(/check[-_]?in[-_]?form[-_]?completed/i, 'check-in_form_completed'),
+            reason: findField(/reason[-_]?for[-_]?trip/i, 'reason_for_trip'),
+            signature: findField(/guest[-_]?signature$/i, 'guest_signature'), // End anchor to avoid signature_date
+            date: findField(/signature[-_]?date/i, 'signature_date'),
+            image: findField(/signature[-_]?image/i, 'signature_image'),
+        };
+
+        console.log('Resolved field map:', fieldMap);
+
         // Update reservation in Guesty
-        await updateReservationCustomFields(formData.reservationId, formData, accessToken);
+        await updateReservationCustomFields(formData.reservationId, formData, accessToken, fieldMap);
 
         return {
             statusCode: 200,

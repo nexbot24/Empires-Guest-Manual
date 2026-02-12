@@ -148,6 +148,11 @@ export const handler: Handler = async (event) => {
 
         let reservation;
 
+        // Check if reservationId looks like a MongoDB ID (24 hex characters)
+        const isMongoId = /^[a-f0-9]{24}$/i.test(reservationId);
+        console.log(`Reservation ID: ${reservationId}`);
+        console.log(`Is MongoDB ID format: ${isMongoId}`);
+
         if (isMongoId) {
             // It looks like a MongoDB ID, so it MUST be a direct lookup.
             // Do not fallback to confirmation code search because a Mongo ID is not a confirmation code.

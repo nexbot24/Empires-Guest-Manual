@@ -148,6 +148,8 @@ export const handler: Handler = async (event) => {
 
         // Check if reservationId looks like a MongoDB ID (24 hex characters)
         const isMongoId = /^[a-f0-9]{24}$/i.test(reservationId);
+        console.log(`Reservation ID: ${reservationId}`);
+        console.log(`Is MongoDB ID format: ${isMongoId}`);
 
         if (isMongoId) {
             // Try fetching directly by ID first (most reliable)
@@ -156,6 +158,7 @@ export const handler: Handler = async (event) => {
                 reservation = await getReservationById(reservationId, accessToken);
                 console.log('Successfully fetched by ID');
             } catch (error) {
+                console.error('Direct ID lookup error:', error);
                 console.log('Direct ID lookup failed, falling back to confirmation code search');
                 reservation = await getReservationByConfirmationCode(reservationId, accessToken);
             }

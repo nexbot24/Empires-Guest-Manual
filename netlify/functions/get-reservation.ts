@@ -57,6 +57,26 @@ async function getGuestyAccessToken(): Promise<string> {
     return data.access_token;
 }
 
+// Get reservation from Guesty by MongoDB ID (direct lookup)
+async function getReservationById(reservationId: string, accessToken: string) {
+    const response = await fetch(`https://api.guesty.com/v1/reservations/${reservationId}`, {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Guesty API error (ID lookup): ${response.status}`, errorText);
+        throw new Error(`Failed to fetch reservation by ID: ${response.status}`);
+    }
+
+    const reservation = await response.json();
+    console.log(`Fetched reservation by ID: ${reservation._id} for guest ${reservation.guest?.fullName}`);
+    return reservation;
+}
+
 // Get reservation from Guesty by confirmation code
 async function getReservationByConfirmationCode(confirmationCode: string, accessToken: string) {
     console.log('Searching for reservation with confirmation code:', confirmationCode);
@@ -133,7 +153,7 @@ export const handler: Handler = async (event) => {
             // Try fetching directly by ID first (most reliable)
             console.log('Attempting direct ID lookup...');
             try {
-                reservation = await getReservation(reservationId, accessToken);
+                reservation = await getReservationById(reservationId, accessToken);
                 console.log('Successfully fetched by ID');
             } catch (error) {
                 console.log('Direct ID lookup failed, falling back to confirmation code search');

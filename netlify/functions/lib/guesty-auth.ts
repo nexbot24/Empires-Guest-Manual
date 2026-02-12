@@ -67,9 +67,10 @@ export async function getGuestyAccessToken(): Promise<string> {
             console.error(`Auth attempt failed (${retries} retries left):`, error);
             lastError = error;
             retries--;
-            if (retries > 0) await delay(1000);
+            if (retries > 0) await delay(Math.pow(2, 3 - retries) * 1000); // 1s, 2s, 4s...
         }
     }
 
-    throw lastError || new Error('Failed to authenticate after retries');
+    const errorMessage = lastError instanceof Error ? lastError.message : 'Unknown error';
+    throw new Error(`Failed to authenticate after retries. Last error: ${errorMessage}`);
 }

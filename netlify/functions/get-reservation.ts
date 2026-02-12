@@ -5,6 +5,10 @@ async function getGuestyAccessToken(): Promise<string> {
     const clientId = process.env.GUESTY_CLIENT_ID;
     const clientSecret = process.env.GUESTY_CLIENT_SECRET;
 
+    console.log('Attempting Guesty authentication...');
+    console.log('Client ID exists:', !!clientId);
+    console.log('Client Secret exists:', !!clientSecret);
+
     if (!clientId || !clientSecret) {
         throw new Error('Guesty credentials not configured');
     }
@@ -22,11 +26,16 @@ async function getGuestyAccessToken(): Promise<string> {
         }),
     });
 
+    console.log('Guesty auth response status:', response.status);
+
     if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Guesty auth error response:', errorText);
         throw new Error('Failed to authenticate with Guesty');
     }
 
     const data = await response.json();
+    console.log('Successfully authenticated with Guesty');
     return data.access_token;
 }
 

@@ -30,11 +30,12 @@ async function getGuestyAccessToken(): Promise<string> {
     return data.access_token;
 }
 
-// Get reservation from Guesty
-async function getReservation(reservationId: string, accessToken: string) {
-    console.log('Fetching reservation:', reservationId);
+// Get reservation from Guesty by confirmation code
+async function getReservationByConfirmationCode(confirmationCode: string, accessToken: string) {
+    console.log('Searching for reservation with confirmation code:', confirmationCode);
 
-    const response = await fetch(`https://open-api.guesty.com/v1/reservations/${reservationId}`, {
+    // Use the list endpoint with filter by confirmation code
+    const response = await fetch(`https://open-api.guesty.com/v1/reservations?confirmationCode=${confirmationCode}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -47,10 +48,19 @@ async function getReservation(reservationId: string, accessToken: string) {
     if (!response.ok) {
         const errorText = await response.text();
         console.error('Guesty API error response:', errorText);
-        throw new Error(`Reservation not found (Status: ${response.status})`);
+        throw new Error(`Failed to search reservations (Status: ${response.status})`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log('Search results count:', data.results?.length || 0);
+
+    // The API returns a results array
+    if (!data.results || data.results.length === 0) {
+        throw new Error(`No reservation found with confirmation code: ${confirmationCode}`);
+    }
+
+    // Return the first matching reservation
+    return data.results[0];
 }
 
 export const handler: Handler = async (event) => {
@@ -76,8 +86,8 @@ export const handler: Handler = async (event) => {
         // Get Guesty access token
         const accessToken = await getGuestyAccessToken();
 
-        // Fetch reservation from Guesty
-        const reservation = await getReservation(reservationId, accessToken);
+        // Fetch reservation from Guesty by confirmation code
+        const reservation = await getReservationByConfirmationCode(reservationId, accessToken);
 
         // Check if form already completed
         const formCompleted = reservation.customFields?.['check-in_form_completed'] === true;

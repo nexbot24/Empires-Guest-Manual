@@ -69,34 +69,55 @@ export const handler: Handler = async (event) => {
         // Get Guesty access token
         const accessToken = await getGuestyAccessToken();
 
-        // 1. Fetch reservation to find correct custom field codes
-        console.log('Fetching reservation to identify custom field names...');
-        const getResponse = await fetch(`https://open-api.guesty.com/v1/reservations/${formData.reservationId}`, {
+        // 1. Fetch ALL custom field definitions to map Labels to Codes
+        console.log('Fetching custom field definitions...');
+        const fieldsResponse = await fetch(`https://open-api.guesty.com/v1/custom-fields?limit=100`, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
             },
         });
 
-        if (!getResponse.ok) {
-            throw new Error('Failed to fetch reservation details for field mapping');
-        }
-
-        const reservation = await getResponse.json();
-        const availableFields = Object.keys(reservation.customFields || {});
-        console.log('Available custom fields:', availableFields);
-
-        // 2. Map fields dynamically using regex
-        const findField = (pattern: RegExp, fallback: string) =>
-            availableFields.find(key => pattern.test(key)) || fallback;
-
-        const fieldMap = {
-            checkInCompleted: findField(/check[-_]?in[-_]?form[-_]?completed/i, 'check-in_form_completed'),
-            reason: findField(/reason[-_]?for[-_]?trip/i, 'reason_for_trip'),
-            signature: findField(/guest[-_]?signature$/i, 'guest_signature'), // End anchor to avoid signature_date
-            date: findField(/signature[-_]?date/i, 'signature_date'),
-            image: findField(/signature[-_]?image/i, 'signature_image'),
+        let fieldMap: Record<string, string> = {
+            checkInCompleted: 'check-in_form_completed',
+            reason: 'reason_for_trip',
+            signature: 'guest_signature',
+            date: 'signature_date',
+            image: 'signature_image',
         };
+
+        if (fieldsResponse.ok) {
+            const fieldsData = await fieldsResponse.json();
+            const fields = fieldsData.results || [];
+            console.log(`Found ${fields.length} custom fields definitions`);
+
+            const findCodeByLabel = (labelPattern: RegExp) => {
+                const field = fields.find((f: any) => labelPattern.test(f.label));
+                return field ? field.fieldName : null;
+            };
+
+            // Map based on the Labels seen in the user's screenshot
+            fieldMap = {
+                checkInCompleted: findCodeByLabel(/Check-in Form Completed/i) || 'check_in_form_completed',
+                reason: findCodeByLabel(/Reason for Trip/i) || 'reason_for_trip',
+                signature: findCodeByLabel(/^Guest Signature$/i) || 'guest_signature',
+                date: findCodeByLabel(/Signature Date/i) || 'signature_date',
+                image: findField(/Signature Image/i) || 'signature_image',
+            };
+
+            // Note: If finding by label fails, I changed the fallback from 'check-in...' (hyphen) to 'check_in...' (underscore)
+            // as underscore is more standard in Guesty.
+        } else {
+            console.warn('Failed to fetch custom fields definitions, using fallbacks');
+            // Hardcoded fallback to underscores if fetch fails
+            fieldMap = {
+                checkInCompleted: 'check_in_form_completed',
+                reason: 'reason_for_trip',
+                signature: 'guest_signature',
+                date: 'signature_date',
+                image: 'signature_image',
+            }
+        }
 
         console.log('Resolved field map:', fieldMap);
 

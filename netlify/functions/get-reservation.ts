@@ -132,9 +132,11 @@ export const handler: Handler = async (event) => {
 
     try {
         // Get reservation ID from query params
-        const reservationId = event.queryStringParameters?.reservationId;
+        // Check both 'reservationId' and 'reservation' to handle frontend inconsistencies
+        const reservationId = event.queryStringParameters?.reservationId || event.queryStringParameters?.reservation;
 
         if (!reservationId) {
+            console.error('Missing reservation ID in query parameters');
             return {
                 statusCode: 400,
                 body: JSON.stringify({ error: 'Reservation ID is required' }),

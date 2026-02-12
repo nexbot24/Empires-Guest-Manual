@@ -59,7 +59,7 @@ async function getGuestyAccessToken(): Promise<string> {
 
 // Get reservation from Guesty by MongoDB ID (direct lookup)
 async function getReservationById(reservationId: string, accessToken: string) {
-    const response = await fetch(`https://api.guesty.com/v1/reservations/${reservationId}`, {
+    const response = await fetch(`https://open-api.guesty.com/v1/reservations/${reservationId}`, {
         headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',

@@ -77,7 +77,7 @@ async function updateReservationCustomFields(
                 'check-in_form_completed': true,
                 'reason_for_trip': formData.reasonForTrip,
                 'guest_signature': formData.guestName,
-                'signature_date': formData.signatureDate,
+                'signature_date': new Date().toISOString().split('T')[0], // Guesty requires YYYY-MM-DD
                 'signature_image': formData.signatureImage,
             },
         }),

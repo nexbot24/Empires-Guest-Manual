@@ -148,21 +148,22 @@ export const handler: Handler = async (event) => {
 
         let reservation;
 
-        // Check if reservationId looks like a MongoDB ID (24 hex characters)
-        const isMongoId = /^[a-f0-9]{24}$/i.test(reservationId);
-        console.log(`Reservation ID: ${reservationId}`);
-        console.log(`Is MongoDB ID format: ${isMongoId}`);
-
         if (isMongoId) {
-            // Try fetching directly by ID first (most reliable)
+            // It looks like a MongoDB ID, so it MUST be a direct lookup.
+            // Do not fallback to confirmation code search because a Mongo ID is not a confirmation code.
             console.log('Attempting direct ID lookup...');
             try {
                 reservation = await getReservationById(reservationId, accessToken);
                 console.log('Successfully fetched by ID');
             } catch (error) {
                 console.error('Direct ID lookup error:', error);
-                console.log('Direct ID lookup failed, falling back to confirmation code search');
-                reservation = await getReservationByConfirmationCode(reservationId, accessToken);
+                // Return the specific error to help debugging
+                // Access token invalid? ID not found? 
+                const errorMessage = error instanceof Error ? error.message : 'Unknown error during ID lookup';
+                return {
+                    statusCode: errorMessage.includes('404') ? 404 : 500,
+                    body: JSON.stringify({ error: `Direct ID lookup failed: ${errorMessage}` }),
+                };
             }
         } else {
             // Not a MongoDB ID, treat as confirmation code

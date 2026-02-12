@@ -102,7 +102,7 @@ export const handler: Handler = async (event) => {
                 reason: findCodeByLabel(/Reason for Trip/i) || 'reason_for_trip',
                 signature: findCodeByLabel(/^Guest Signature$/i) || 'guest_signature',
                 date: findCodeByLabel(/Signature Date/i) || 'signature_date',
-                image: findField(/Signature Image/i) || 'signature_image',
+                image: findCodeByLabel(/Signature Image/i) || 'signature_image',
             };
 
             // Note: If finding by label fails, I changed the fallback from 'check-in...' (hyphen) to 'check_in...' (underscore)

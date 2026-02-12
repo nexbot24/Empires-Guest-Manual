@@ -190,7 +190,6 @@ export const handler: Handler = async (event) => {
                 checkIn: reservation.checkIn,
                 checkOut: reservation.checkOut,
                 formCompleted,
-                customFields: reservation.customFields,
             }),
         };
     } catch (error) {

@@ -86,8 +86,19 @@ async function getReservationByConfirmationCode(confirmationCode: string, access
         throw new Error(`No reservation found with confirmation code: ${confirmationCode}`);
     }
 
+    // Log all found reservations for debugging
+    if (data.results.length > 1) {
+        console.log('Multiple reservations found:');
+        data.results.forEach((res: any, index: number) => {
+            console.log(`  ${index + 1}. ID: ${res._id}, Guest: ${res.guest?.fullName}, Status: ${res.status}`);
+        });
+    }
+
     // Return the first matching reservation
-    return data.results[0];
+    const reservation = data.results[0];
+    console.log(`Using reservation: ${reservation._id} for guest ${reservation.guest?.fullName}`);
+
+    return reservation;
 }
 
 export const handler: Handler = async (event) => {

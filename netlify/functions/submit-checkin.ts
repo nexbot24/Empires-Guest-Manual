@@ -35,9 +35,14 @@ async function updateReservationCustomFields(
     });
 
     if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Guesty API error:', errorData);
-        throw new Error(`Failed to update reservation: ${errorData.message || response.statusText}`);
+        const errorText = await response.text();
+        console.error('Guesty API error details:', errorText);
+        try {
+            const errorData = JSON.parse(errorText);
+            throw new Error(`Failed to update reservation: ${JSON.stringify(errorData)}`);
+        } catch (e) {
+            throw new Error(`Failed to update reservation: ${errorText}`);
+        }
     }
 }
 
@@ -49,6 +54,8 @@ export const handler: Handler = async (event) => {
             body: JSON.stringify({ error: 'Method not allowed' }),
         };
     }
+
+    let resolvedFieldMap: any = {};
 
     try {
         // Parse request body
@@ -119,6 +126,7 @@ export const handler: Handler = async (event) => {
             }
         }
 
+        resolvedFieldMap = fieldMap;
         console.log('Resolved field map:', fieldMap);
 
         // Update reservation in Guesty
@@ -132,6 +140,7 @@ export const handler: Handler = async (event) => {
             body: JSON.stringify({
                 success: true,
                 message: 'Check-in form submitted successfully',
+                debug: { fieldMap }
             }),
         };
     } catch (error) {
@@ -145,6 +154,7 @@ export const handler: Handler = async (event) => {
             body: JSON.stringify({
                 success: false,
                 error: error instanceof Error ? error.message : 'An error occurred',
+                debug: { fieldMap: resolvedFieldMap }
             }),
         };
     }

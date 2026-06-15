@@ -15,26 +15,53 @@ import * as React from 'react';
 
 interface StoreOrderConfirmationProps {
   guestName: string;
-  productName: string; // 'Early Check-in' or 'Late Check-out'
-  newTime: string;    // '3:00 PM' etc.
-  price: string;      // '50.00'
+  productName: string;
+  productId: string;
+  selectedTime: string;  // '2:15 PM' for hourly, '' for fixed
+  price: string;         // '35.00'
   propertyId?: string;
 }
 
 export const StoreOrderConfirmation = ({
   guestName = 'Guest',
   productName = 'Early Check-in',
-  newTime = '3:00 PM',
-  price = '12.50',
+  productId = 'early-checkin',
+  selectedTime = '3:00 PM',
+  price = '20.00',
   propertyId = 'haven',
 }: StoreOrderConfirmationProps) => {
 
-  const isEarly = productName.toLowerCase().includes('early');
-  const actionText = isEarly ? 'Early Check-in' : 'Late Check-out';
-  const timeLabel = isEarly ? 'New Check-in Time' : 'New Check-out Time';
+  const isEarlyCheckin = productId === 'early-checkin';
+  const isLateCheckout = productId === 'late-checkout';
+  const isBagDrop = productId === 'bag-drop';
+  const isLeaveBags = productId === 'leave-bags';
+  const isHourly = isEarlyCheckin || isLateCheckout;
+
+  const getActionText = () => {
+    if (isEarlyCheckin) return 'Early Check-in';
+    if (isLateCheckout) return 'Late Check-out';
+    if (isBagDrop) return 'Bag Drop';
+    if (isLeaveBags) return 'Bag Storage';
+    return productName;
+  };
+
+  const actionText = getActionText();
+
+  const getTimeLabelText = () => {
+    if (isEarlyCheckin) return 'New Check-in Time';
+    if (isLateCheckout) return 'New Check-out Time';
+    return '';
+  };
+
+  const getInstructionText = () => {
+    if (isEarlyCheckin) return 'Please use your standard access code to enter at this new time.';
+    if (isLateCheckout) return 'Please use your standard access code to leave at this new time.';
+    if (isBagDrop) return 'You may drop your bags off from 2:00 PM. Please use your standard access code.';
+    if (isLeaveBags) return 'You may leave your bags at the property after your 11:00 AM check-out. Please collect them at your convenience.';
+    return '';
+  };
 
   // Determine base URL based on property
-  // Note: Vibe logo might be different in future, but for now we expect 'email-logo.png' to exist on both domains
   const getBaseUrl = (pid: string) => {
     if (pid === 'vibe') return 'https://vibe.empiresproperty.co.uk';
     return 'https://haven.empiresproperty.co.uk';
@@ -51,7 +78,7 @@ export const StoreOrderConfirmation = ({
           rel="stylesheet"
         />
       </Head>
-      <Preview>Your {actionText.toLowerCase()} at {newTime} is confirmed - Empires Property</Preview>
+      <Preview>Your {actionText.toLowerCase()} is confirmed{isHourly && selectedTime ? ` at ${selectedTime}` : ''} - Empires Property</Preview>
       <Body style={main}>
         <Container style={container}>
           {/* Header */}
@@ -81,7 +108,7 @@ export const StoreOrderConfirmation = ({
 
           {/* Tagline Bar */}
           <Section style={taglineBar}>
-            <Text style={taglineText}>{actionText} Confirmed</Text>
+            <Text style={taglineTextStyle}>{actionText} Confirmed</Text>
           </Section>
 
           {/* Main Content */}
@@ -92,11 +119,28 @@ export const StoreOrderConfirmation = ({
               Thank you for confirming your <strong style={highlight}>{actionText}</strong>.
             </Text>
 
-            {/* New Check-in Time Card */}
-            <Section style={timeCard}>
-              <Text style={timeLabel}>{timeLabel}</Text>
-              <Heading style={timeHeading}>{newTime}</Heading>
-            </Section>
+            {/* New Time Card — only for hourly products */}
+            {isHourly && selectedTime && (
+              <Section style={timeCard}>
+                <Text style={timeLabelStyle}>{getTimeLabelText()}</Text>
+                <Heading style={timeHeading}>{selectedTime}</Heading>
+              </Section>
+            )}
+
+            {/* Info Card — for bag drop / leave bags */}
+            {isBagDrop && (
+              <Section style={timeCard}>
+                <Text style={timeLabelStyle}>Bag Drop Available From</Text>
+                <Heading style={timeHeading}>2:00 PM</Heading>
+              </Section>
+            )}
+
+            {isLeaveBags && (
+              <Section style={timeCard}>
+                <Text style={timeLabelStyle}>Leave Bags After</Text>
+                <Heading style={timeHeading}>11:00 AM</Heading>
+              </Section>
+            )}
 
             {/* Payment Card */}
             <Section style={paymentCard}>
@@ -117,12 +161,12 @@ export const StoreOrderConfirmation = ({
               </table>
             </Section>
 
-            <Text style={instructionText}>
-              Please use your standard access code to {isEarly ? 'enter' : 'leave'} at this new time.
+            <Text style={instructionTextStyle}>
+              {getInstructionText()}
             </Text>
 
             <Text style={paragraph}>
-              We look forward to {isEarly ? 'welcoming you' : 'your next stay'}.
+              We look forward to {isEarlyCheckin || isBagDrop ? 'welcoming you' : 'your next stay'}.
             </Text>
 
             <Text style={closing}>
@@ -203,7 +247,7 @@ const taglineBar = {
   textAlign: 'center' as const,
 };
 
-const taglineText = {
+const taglineTextStyle = {
   margin: '0',
   fontFamily: "'Inter', Arial, sans-serif",
   fontSize: '14px',
@@ -245,7 +289,7 @@ const timeCard = {
   marginBottom: '32px',
 };
 
-const timeLabel = {
+const timeLabelStyle = {
   margin: '0 0 12px',
   fontFamily: "'Inter', Arial, sans-serif",
   fontSize: '13px',
@@ -318,7 +362,7 @@ const totalValue = {
   textAlign: 'right' as const,
 };
 
-const instructionText = {
+const instructionTextStyle = {
   margin: '0 0 16px',
   fontFamily: "'Inter', Arial, sans-serif",
   fontSize: '15px',

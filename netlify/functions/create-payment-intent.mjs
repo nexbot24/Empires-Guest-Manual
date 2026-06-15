@@ -6,8 +6,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 const PRODUCTS = {
-    'early-checkin': { price: 1250 },
-    'late-checkout': { price: 1250 },
+    'early-checkin': { pricePerHour: 2000, type: 'hourly' },
+    'late-checkout': { pricePerHour: 2000, type: 'hourly' },
+    'bag-drop': { price: 1500, type: 'fixed' },
+    'leave-bags': { price: 1500, type: 'fixed' },
 };
 
 export default async (req, context) => {
@@ -17,7 +19,7 @@ export default async (req, context) => {
 
     try {
         const body = await req.json();
-        const { productId, hours = 1 } = body;
+        const { productId, totalPence, selectedTime } = body;
 
         const product = PRODUCTS[productId];
         if (!product) {
@@ -27,7 +29,29 @@ export default async (req, context) => {
             });
         }
 
-        const amount = product.price * hours;
+        let amount;
+
+        if (product.type === 'fixed') {
+            // Fixed-price products — ignore any totalPence from client
+            amount = product.price;
+        } else {
+            // Hourly products — validate the totalPence from client
+            // totalPence must be a positive multiple of the per-5-minute rate
+            // Per 5 minutes = pricePerHour / 12 = 2000/12 ≈ 166.67
+            // We'll trust the client calculation but validate it's within range
+            const maxHours = 4; // Max 4 hours early/late
+            const maxAmount = product.pricePerHour * maxHours;
+            const minAmount = Math.round(product.pricePerHour * (5 / 60)); // Minimum 5 minutes
+
+            if (!totalPence || totalPence < minAmount || totalPence > maxAmount) {
+                return new Response(JSON.stringify({ error: 'Invalid amount' }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json" }
+                });
+            }
+
+            amount = totalPence;
+        }
 
         const paymentIntent = await stripe.paymentIntents.create({
             amount,
@@ -36,7 +60,8 @@ export default async (req, context) => {
             payment_method_configuration: 'pmc_1SwT6x0NSjBsWBsahpm6pK00', // Managed in Stripe Dashboard
             metadata: {
                 productId,
-                hours,
+                selectedTime: selectedTime || '',
+                amountPence: amount,
             }
         });
 

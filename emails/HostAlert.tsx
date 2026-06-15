@@ -15,18 +15,29 @@ import {
 interface HostAlertProps {
     guestName?: string;
     productName: string;
+    productId: string;
     price: string;
     propertyName: string;
-    hours: number;
+    selectedTime: string;
 }
 
 export const HostAlert = ({
     guestName = 'A Guest',
     productName = 'Early Check-in',
-    price = '£12.50',
+    productId = 'early-checkin',
+    price = '£20.00',
     propertyName = 'Haven',
-    hours = 1,
+    selectedTime = '',
 }: HostAlertProps) => {
+    const isHourly = productId === 'early-checkin' || productId === 'late-checkout';
+
+    const getItemDetail = () => {
+        if (isHourly && selectedTime) {
+            return `${productName} — ${selectedTime}`;
+        }
+        return productName;
+    };
+
     return (
         <Html>
             <Head />
@@ -40,7 +51,10 @@ export const HostAlert = ({
                             <strong>Property:</strong> {propertyName}
                         </Text>
                         <Text style={paragraph}>
-                            <strong>Item:</strong> {productName} ({hours} hr{hours > 1 ? 's' : ''})
+                            <strong>Guest:</strong> {guestName}
+                        </Text>
+                        <Text style={paragraph}>
+                            <strong>Item:</strong> {getItemDetail()}
                         </Text>
                         <Text style={paragraph}>
                             <strong>Price:</strong> {price}

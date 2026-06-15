@@ -13,7 +13,7 @@ export default async (req: Request, context: any) => {
 
     try {
         const body = await req.json();
-        const { to, guestName, productName, price, hours, propertyId, newTime } = body;
+        const { to, guestName, productName, productId, price, selectedTime, propertyId } = body;
 
         // 1. Send Guest Confirmation (if email provided)
         if (to) {
@@ -24,8 +24,9 @@ export default async (req: Request, context: any) => {
                 react: StoreOrderConfirmation({
                     guestName: guestName || 'Guest',
                     productName: productName,
+                    productId: productId || 'early-checkin',
                     price: price.replace('£', ''), // Remove £ if present as template adds it
-                    newTime: newTime || 'Pending',
+                    selectedTime: selectedTime || '',
                     propertyId: propertyId || 'haven'
                 }),
             });
@@ -39,9 +40,10 @@ export default async (req: Request, context: any) => {
             react: HostAlert({
                 guestName,
                 productName,
+                productId: productId || 'early-checkin',
                 price,
                 propertyName: propertyId === 'vibe' ? 'Vibe' : 'Haven',
-                hours
+                selectedTime: selectedTime || '',
             }),
         });
 

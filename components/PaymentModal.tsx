@@ -5,20 +5,19 @@ import { Elements } from '@stripe/react-stripe-js';
 import CheckoutForm from './CheckoutForm';
 import { X, Loader2 } from 'lucide-react';
 import { Product } from '../types';
-import { PROPERTY_DATA } from '../constants';
 
-// Initialize Stripe outside component to avoid recreating object on renders
 // Initialize Stripe outside component to avoid recreating object on renders
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 interface PaymentModalProps {
     product: Product;
-    hours: number;
+    totalPence: number;
+    selectedTime: string; // e.g. "2:15 PM" for hourly, "" for fixed
     isOpen: boolean;
     onClose: (failedOrSuccess?: boolean) => void;
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onClose }) => {
+const PaymentModal: React.FC<PaymentModalProps> = ({ product, totalPence, selectedTime, isOpen, onClose }) => {
     const [clientSecret, setClientSecret] = useState('');
     const [loading, setLoading] = useState(false);
     const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -29,16 +28,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
             setPaymentSuccess(false);
             setClientSecret(''); // Clear previous secret to avoid stale price
 
-            // Create PaymentIntent as soon as the modal opens
-            // Use relative path for Netlify Functions (works locally if using netlify dev, or live)
-            // Fallback to localhost if not on Netlify (handling via .env or simple logic is better, but strictly for the requested "push" we switch to relative)
-
-            // Actually, for a pure switch to "live", we prefer valid relative paths. 
-            // BUT, on localhost:3000 (Vite) without netlify-cli, relative path won't work unless proxied.
-            // The user wants to "push". So I will set it to the relative path, 
-            // AND I will add a proxy to vite.config.ts so it works locally too? 
-            // Or just keep the localhost logic for dev.
-
             const endpoint = import.meta.env.DEV
                 ? 'http://localhost:4242/create-payment-intent'
                 : '/.netlify/functions/create-payment-intent';
@@ -46,7 +35,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
             fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productId: product.id, hours }),
+                body: JSON.stringify({
+                    productId: product.id,
+                    totalPence,
+                    selectedTime,
+                }),
             })
                 .then((res) => res.json())
                 .then((data) => {
@@ -58,16 +51,35 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
                     setLoading(false);
                 });
         }
-    }, [isOpen, product, hours]);
+    }, [isOpen, product, totalPence, selectedTime]);
 
     if (!isOpen) return null;
 
+    const isHourly = product.type === 'hourly';
+    const isEarlyCheckin = product.id === 'early-checkin';
+    const isLateCheckout = product.id === 'late-checkout';
+    const isBagDrop = product.id === 'bag-drop';
+    const isLeaveBags = product.id === 'leave-bags';
+
+    const getSuccessMessage = (): string => {
+        if (isEarlyCheckin) return `Your early check-in at ${selectedTime} is confirmed.`;
+        if (isLateCheckout) return `Your late check-out at ${selectedTime} is confirmed.`;
+        if (isBagDrop) return 'Your bag drop from 2:00 PM is confirmed.';
+        if (isLeaveBags) return 'Your bag storage after check-out is confirmed.';
+        return 'Your purchase is confirmed.';
+    };
+
+    const getTimeLabel = (): string | null => {
+        if (isEarlyCheckin) return `Your new check-in time will be`;
+        if (isLateCheckout) return `Your new check-out time will be`;
+        return null;
+    };
+
     const handleSuccess = async (email?: string, guestName?: string) => {
         setPaymentSuccess(true);
-        // Trigger email notification
         try {
             const endpoint = import.meta.env.DEV
-                ? 'http://localhost:4242/send-email' // We need to add this to server/index.js if we want local dev to work fully
+                ? 'http://localhost:4242/send-email'
                 : '/.netlify/functions/send-email';
 
             await fetch(endpoint, {
@@ -75,12 +87,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     to: email,
-                    guestName: guestName || 'Guest', // Use captured name or default
+                    guestName: guestName || 'Guest',
                     productName: product.name,
-                    price: `£${(product.price * hours / 100).toFixed(2)}`,
-                    hours,
+                    productId: product.id,
+                    price: `£${(totalPence / 100).toFixed(2)}`,
+                    selectedTime: selectedTime || undefined,
                     propertyId: import.meta.env.VITE_PROPERTY_ID,
-                    newTime: newTime
                 }),
             });
         } catch (e) {
@@ -88,40 +100,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
             // Don't block UI success state
         }
     };
-
-    // ... getNewTime ...
-    const getNewTime = (): string => {
-        // Standard formatted times from constants: '4:00 PM', '11:00 AM'
-        // Simple parser for this specific format
-        const parseTime = (timeStr: string) => {
-            const [time, period] = timeStr.split(' ');
-            let [h, m] = time.split(':').map(Number);
-            if (period === 'PM' && h !== 12) h += 12;
-            if (period === 'AM' && h === 12) h = 0;
-            return { h, m };
-        };
-
-        const formatTime = (h: number, m: number) => {
-            const period = h >= 12 ? 'PM' : 'AM';
-            const displayH = h % 12 || 12;
-            const displayM = m.toString().padStart(2, '0');
-            return `${displayH}:${displayM} ${period}`;
-        };
-
-        if (product.id === 'early-checkin') {
-            const { h, m } = parseTime(PROPERTY_DATA.checkIn); // e.g., 16:00
-            let newH = h - hours;
-            // Handle day wrapping if really needed, though unlikely for < 12 hours checkin
-            return formatTime(newH, m);
-        } else if (product.id === 'late-checkout') {
-            const { h, m } = parseTime(PROPERTY_DATA.checkOut); // e.g., 11:00
-            let newH = h + hours;
-            return formatTime(newH, m);
-        }
-        return '';
-    };
-
-    const newTime = getNewTime();
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
@@ -138,11 +116,21 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
                 </h2>
                 <div className="flex flex-col gap-1 mb-6 shrink-0">
                     <p className="text-earth font-medium">
-                        Total: £{((product.price * hours) / 100).toFixed(2)}
+                        Total: £{(totalPence / 100).toFixed(2)}
                     </p>
-                    {newTime && (
+                    {isHourly && selectedTime && (
                         <p className="text-luxury-black/60 dark:text-luxury-off/60 text-sm">
-                            Your new {product.id === 'early-checkin' ? 'check-in' : 'check-out'} time will be <span className="text-luxury-black dark:text-luxury-light font-bold">{newTime}</span>
+                            {getTimeLabel()} <span className="text-luxury-black dark:text-luxury-light font-bold">{selectedTime}</span>
+                        </p>
+                    )}
+                    {isBagDrop && (
+                        <p className="text-luxury-black/60 dark:text-luxury-off/60 text-sm">
+                            Drop your bags off from <span className="text-luxury-black dark:text-luxury-light font-bold">2:00 PM</span>
+                        </p>
+                    )}
+                    {isLeaveBags && (
+                        <p className="text-luxury-black/60 dark:text-luxury-off/60 text-sm">
+                            Leave your bags after <span className="text-luxury-black dark:text-luxury-light font-bold">11:00 AM</span> check-out
                         </p>
                     )}
                 </div>
@@ -154,7 +142,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, hours, isOpen, onC
                         </div>
                         <h3 className="text-xl font-medium">Payment Successful!</h3>
                         <p className="text-gray-500 mt-2 text-center">
-                            Confirmed! Your new time is <span className="font-bold">{newTime}</span>.
+                            {getSuccessMessage()}
                         </p>
                     </div>
                 ) : (
